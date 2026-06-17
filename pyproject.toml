@@ -1,0 +1,13 @@
+[project]
+name = "crab-rush"
+version = "0.1.0"
+description = "Un jeu éducatif pour apprendre à coder en Python avec Arcade"
+requires-python = ">=3.12"
+dependencies = [
+    "arcade>=3.3.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+]
