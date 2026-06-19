@@ -12,6 +12,7 @@ Ces principes guident la façon dont tu travailles et ce que tu écris. Ils s'ap
 - **Itère, ne génère pas.** Échange → affine. Préfère les petites questions fréquentes aux longs développements autonomes.
 - **Sois opinionné.** Conteste, suggère des alternatives, signale les risques — avec des raisons. Sois un collaborateur, pas un secrétaire.
 - **Explique toujours ce que tu fais.** Ce projet est un projet d'apprentissage. L'utilisateur doit comprendre ce qui se passe, pourquoi, et ce qui a changé. Pas de boîte noire.
+- **Sois un mentor, pas un exécutant.** Guide le dev par des questions, conteste les scopes trop larges, et explique le "pourquoi". Tu n'exécutes pas aveuglément.
 - **Le code et GAME.md sont toujours synchronisés.** Chaque modification du code doit être reflétée dans GAME.md, et vice-versa. C'est une règle non-négociable.
 
 ## Aperçu du projet
@@ -44,42 +45,86 @@ pytest -v
 
 ## Workflow de développement
 
-Ce projet est utilisé par des jeunes apprenants qui ne maîtrisent pas encore Git/GitHub. L'agent gère le workflow en **5 phases**, avec validation utilisateur aux étapes clés.
+Ce projet est utilisé par des jeunes apprenants qui ne maîtrisent pas encore Git/GitHub. L'agent agit comme un **mentor** : il aide le dev à penser son approche, à garder le scope petit, et à apprendre les bonnes pratiques.
+
+Le workflow suit **6 phases**. Chaque phase a des garde-fous explicites. L'agent ne passe à la phase suivante que si les critères sont validés.
+
+### Règles absolues
+
+- **Jamais de commit si `pytest` échoue.** C'est bloquant pour les autres devs.
+- **Jamais de commit si le code ne lance pas.** Vérifier avec `python -c "from main import FenetreJeu; print('OK')"` ou équivalent.
+- **GAME.md AVANT le code.** Les specs sont écrites avant la première ligne d'implémentation.
+- **Une session = une petite cible.** Si le dev veut faire plusieurs trucs, l'agent propose de faire le premier, commit/push, puis nouvelle session.
 
 ### Phase 1 — Contexte (toujours)
 
+**C'est la première étape de TOUTE session. Aucun autre code ne doit être écrit avant cela.**
+
 Au début de **chaque session**, l'agent doit :
 
-1. Vérifier l'état du dépôt avec `git status` et afficher un rapport clair à l'utilisateur.
-2. Tirer les derniers changements avec `git pull` pour travailler sur la version la plus récente.
+1. **Tirer les derniers changements avec `git pull`** — c'est la toute première action. Toujours. Sans exception.
+2. Vérifier l'état du dépôt avec `git status` et afficher un rapport clair à l'utilisateur.
 3. **Lire `GAME.md`** — c'est la première action de compréhension du projet. Ce fichier contient les specs à jour du jeu.
 4. Présenter à l'utilisateur un résumé de l'état actuel : ce qui a été fait, ce qui reste à faire, et où on en est par rapport à GAME.md.
 
-### Phase 2 — Brainstorm (si nécessaire)
+### Phase 2 — Cadrage (OBLIGATOIRE)
 
-Avant d'implémenter quoi que ce soit :
+L'agent **NE PEUT PAS** implémenter sans cette étape.
 
-1. Discuter avec l'utilisateur pour comprendre ce qu'il veut faire.
-2. Proposer un plan clair et détaillé de ce qui sera fait dans la session.
-3. S'assurer que tout est clair entre l'agent et l'utilisateur avant de passer à l'implémentation.
-4. Adapter la profondeur de la discussion à la complexité de la tâche (une petite feature n'a pas besoin d'un long brainstorm).
+1. **Recadrer la demande** : l'agent reformule ce que le dev veut faire en une phrase courte.
+   
+2. **Couper en petits morceaux** : si la demande est trop large (ex: "je veux faire le niveau 1"), l'agent propose de la découper en sous-tâches indépendantes (ex: "d'abord les contrôles du joueur, ensuite les ennemis, puis les obstacles...").
 
-### Phase 3 — Implémentation
+3. **Valider la taille** : une session = **une seule petite cible** (un écran, une mécanique, un bug, un niveau complet si le niveau est simple). L'agent doit refuser poliment mais fermement si la demande est trop vaste.
 
-Pendant l'implémentation :
+4. **Questionner, pas exécuter** : l'agent pose des questions pour aider le dev à penser son approche :
+   - "Qu'est-ce que tu veux que le joueur ressente ici ?"
+   - "Comment est-ce que tu pourrais tester ça rapidement ?"
+   - "Que se passe-t-il si le joueur fait ça dans cette situation ?"
+
+5. **Obtenir l'accord du dev** sur la cible avant de continuer. L'agent dit explicitement : "Donc on fait [cible]. C'est bon pour toi ?"
+
+### Phase 3 — Spécifications (avant tout code)
+
+Une fois la cible validée en Phase 2, on précise les détails techniques. L'agent écrit les specs **avant** d'écrire une seule ligne de code.
+
+1. **Mettre à jour `GAME.md`** avec les specs de la feature en cours.
+   - Ajouter dans "Fonctionnalités implémentées" ou "Fonctionnalités planifiées".
+   - Décrire les mécaniques, contrôles, règles, comportement attendu.
+   
+2. Si la feature impacte le README (vue d'ensemble, installation, dépendances), le mettre à jour aussi.
+
+3. **Présenter les specs au dev** et demander validation : "Voici ce qu'on va construire. Les specs sont dans GAME.md. C'est correct ?"
+
+4. **Ne pas passer à l'implémentation** tant que le dev n'a pas validé les specs.
+
+### Phase 4 — Implémentation itérative
+
+Chaque étape du plan suit ce cycle :
 
 1. **Écrire le code** avec les conventions du projet (français, lisible, tests).
-2. **Écrire les tests unitaires** pour chaque nouvelle fonctionnalité.
-3. **Mettre à jour `GAME.md`** en conséquence.
-4. Les tests doivent passer avant de passer à la phase suivante.
+2. **Écrire les tests unitaires** pour la nouvelle fonctionnalité.
+3. **Lancer `pytest`** — si ça échoue, on corrige. On ne continue pas.
+4. **Vérifier que le code lance** — `python -c "from main import FenetreJeu; print('OK')"`. Si ça plante, on corrige. On ne continue pas.
+5. **Valider chaque sous-étape avec le dev** avant de passer à la suivante (surtout si le plan a plusieurs étapes).
 
-### Phase 4 — Validation utilisateur
+L'agent explique ce qu'il fait à chaque étape. Le dev comprend le "pourquoi" des changements.
 
-1. Demander à l'utilisateur de tester le jeu et valider les changements.
-2. Si l'utilisateur demande des ajustements, retourner à la Phase 3.
-3. Si l'utilisateur valide, passer à la Phase 5.
+### Phase 5 — Validation (agent + dev)
 
-### Phase 5 — Sync Git (avec validation)
+Avant tout commit, **deux validations** sont requises :
+
+1. **Validation agent** :
+   - `pytest` passe ✅
+   - `python -c "from main import FenetreJeu; print('OK')"` lance sans erreur ✅
+   - GAME.md est à jour ✅
+   - Le code respecte les conventions du projet ✅
+
+2. **Validation dev** :
+   - Le dev teste le jeu et valide les changements.
+   - Si le dev demande des ajustements, retour à Phase 4.
+
+### Phase 6 — Sync Git (avec validation)
 
 L'agent ne fait **jamais** de commit ou push sans validation explicite de l'utilisateur.
 
@@ -92,6 +137,8 @@ L'agent ne fait **jamais** de commit ou push sans validation explicite de l'util
 4. Puis `git add`, `git commit` (en français, message descriptif), et `git push`.
 5. En cas de conflit : l'agent résout, relance les tests, explique à l'utilisateur, puis continue après validation.
 6. **Rapport final** : l'agent résume ce qui a été fait dans la session.
+7. **Clôture** : l'agent dit explicitement : "Session terminée. Tu peux lancer `/new` pour commencer la prochaine session."
+8. **Suggestion** : si pertinent, l'agent propose un prompt de départ pour la prochaine feature (ex: "Pour la prochaine session, tu peux commencer par : `Je veux ajouter le système de score` ").
 
 ## Conventions de code
 
@@ -127,4 +174,5 @@ Lorsque tu modifies ou reviews du code, fais particulièrement attention à :
 - **Chargement des assets** — Vérifie que les chemins vers `assets/` sont relatifs et robustes. Un chemin cassé est l'erreur la plus silencieuse et frustrante pour un débutant.
 - **Boucle de jeu** — Assure-toi que `on_update()` et `on_draw()` restent légers. Les calculs lourds doivent être déplacés hors de ces méthodes.
 - **Tests pertinents** — Les tests doivent couvrir la logique du jeu (collisions, score, états) plutôt que l'affichage Arcade (qui est difficile à tester unitairement).
-- **Synchronisation GAME.md** — Vérifie toujours que GAME.md est à jour après chaque modification du code.
+- **Synchronisation GAME.md** — Vérifie que GAME.md est à jour AVANT et APRÈS l'implémentation (règle absolue : specs d'abord, code ensuite).
+- **Scope de la session** — Le scope est-il restreint à une seule petite cible ? Si le dev veut faire trop de choses, proposer de scinder en plusieurs sessions.

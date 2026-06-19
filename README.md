@@ -16,7 +16,7 @@ Un jeu développé par et pour des jeunes apprenants. L'objectif est d'apprendre
 ### Prérequis
 - Python 3.12 ou plus récent ([python.org](https://www.python.org/downloads/))
 - Git — macOS/Linux : inclus avec Git ([git-scm.com](https://git-scm.com/)), Windows : [Git for Windows](https://gitforwindows.org/)
-- [Agent IA Pi](https://pi.dev/) (optionnel, pour l'aide au développement)
+- [Agent IA Pi](https://pi.dev/) — ton assistant de développement IA (recommandé !)
 
 ### Installer les dépendances
 ```bash
@@ -59,10 +59,49 @@ crab-rush/
 
 Ce projet est ouvert à tous les apprenants ! Voici comment contribuer :
 
+### 🤖 Travailler avec Pi (l'agent IA)
+
+Pi est ton assistant de développement. Il t'aide à :
+
+- **Comprendre le code** — pose-lui des questions sur n'importe quelle partie du jeu
+- **Implémenter des features** — dis-lui ce que tu veux ajouter, il te guide étape par étape
+- **Corriger des bugs** — décris le problème, il t'aide à le résoudre
+- **Apprendre les bonnes pratiques** — tests, structure, nommage, tout est expliqué
+
+**Comment commencer :**
+
+1. Ouvre une session avec Pi (`/new`)
+2. Dis-lui ce que tu veux faire, par exemple :
+   - _"Je veux ajouter un score au jeu"_
+   - _"Je veux créer le niveau 1"_
+   - _"Il y a un bug quand je clique sur le bouton Jouer"_
+3. Pi te posera des questions pour comprendre ton idée
+4. Ensemble, vous planifierez les étapes, tu valideras chacune, et Pi écrira le code
+5. Une fois terminé, Pi pushera les changements automatiquement (avec ton accord)
+
+**Conseil :** Fais une chose à la fois. Une session = une feature. Si tu veux faire plusieurs trucs, termine la première, puis lance `/new` pour la suivante.
+
+### 📋 Workflow en 6 étapes
+
+Quand tu travailles avec Pi, voici ce qui se passe :
+
+1. **Contexte** — Pi vérifie l'état du dépôt et te résume ce qui a été fait
+2. **Cadrage** — On définit ensemble ce qu'on va faire (une seule petite chose)
+3. **Spécifications** — On écrit les règles dans `GAME.md` avant de coder
+4. **Implémentation** — Pi écrit le code, tu valides chaque étape
+5. **Validation** — Tests + lancement du jeu + ta vérification
+6. **Sync Git** — Commit et push (avec ton accord)
+
+### 📝 Sans Pi
+
+Si tu préfères coder toi-même :
+
 1. Clone le dépôt
-2. Crée tes modifications
-3. Écris des tests pour tes nouvelles fonctionnalités
-4. Lance les tests : `pytest`
-5. Commit et push
+2. Lis `GAME.md` pour comprendre ce qui a déjà été fait
+3. Choisis une feature dans "Fonctionnalités planifiées"
+4. Crée tes modifications
+5. Écris des tests pour tes nouvelles fonctionnalités
+6. Lance les tests : `pytest`
+7. Commit et push
 
 Pour plus de détails sur le workflow, consulte [`AGENTS.md`](AGENTS.md).
