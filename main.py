@@ -38,8 +38,42 @@ class FenetreJeu(arcade.Window):
         self.retour_y = 570
         self.retour_taille = 30
 
+        # Sliders son
+        self.largeur_slider = 200
+        self.hauteur_slider = 10
+        self.slider_musique_x = 400
+        self.slider_musique_y = 380
+        self.slider_sons_x = 400
+        self.slider_sons_y = 340
+
+        # Volume (0-100)
+        self.volume_musique = 70
+        self.volume_sons = 50
+
+        # Curseur en cours de déplacement
+        self.curseur_en_cours = None  # "musique" ou "sons"
+
+        # Bouton Quitter
+        self.largeur_quitter = 150
+        self.hauteur_quitter = 50
+        self.quitter_x = 400
+        self.quitter_y = 150
+
+        # Popup confirmation
+        self.popup_affiche = False
+        self.popup_timer = 0
+        self.largeur_popup_btn = 80
+        self.hauteur_popup_btn = 40
+
         # Titre
         self.titre_texte = "🦀 Crab Rush"
+
+    def on_update(self, delta_time):
+        """Gère le timer du popup."""
+        if self.popup_affiche:
+            self.popup_timer += delta_time
+            if self.popup_timer >= 3.0:
+                self.close()
 
     def on_draw(self):
         """Dessine l'écran en cours."""
@@ -237,25 +271,18 @@ class FenetreJeu(arcade.Window):
             (50, 50, 50)
         )
 
-        arcade.draw_text(
-            "Paramètres",
-            x=400,
-            y=350,
-            color=arcade.color.WHITE,
-            font_size=36,
-            anchor_x="center",
-            anchor_y="center"
-        )
 
-        arcade.draw_text(
-            "Bouton à définir — à venir...",
-            x=400,
-            y=280,
-            color=arcade.color.LIGHT_GRAY,
-            font_size=18,
-            anchor_x="center",
-            anchor_y="center"
-        )
+
+        # Sliders son
+        self.dessiner_slider_musique()
+        self.dessiner_slider_sons()
+
+        # Bouton Quitter
+        self.dessiner_bouton_quitter()
+
+        # Popup confirmation
+        if self.popup_affiche:
+            self.dessiner_popup_confirmation()
 
     def dessiner_flache_retour(self):
         """Dessine la flèche retour (carré + triangle pointant à gauche)."""
@@ -278,6 +305,153 @@ class FenetreJeu(arcade.Window):
             arcade.color.WHITE
         )
 
+    def dessiner_slider_musique(self):
+        """Dessine le slider de volume musique."""
+        x_gauche = self.slider_musique_x - self.largeur_slider // 2
+
+        # Label
+        arcade.draw_text(
+            "Musique",
+            x=self.slider_musique_x - self.largeur_slider // 2 - 20,
+            y=self.slider_musique_y,
+            color=arcade.color.WHITE,
+            font_size=14,
+            anchor_x="right",
+            anchor_y="center"
+        )
+
+        # Fond du slider
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, x_gauche + self.largeur_slider,
+            self.slider_musique_y - self.hauteur_slider // 2,
+            self.slider_musique_y + self.hauteur_slider // 2,
+            (60, 60, 60)
+        )
+
+        # Barre de progression
+        remplissage = int(self.largeur_slider * self.volume_musique / 100)
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, x_gauche + remplissage,
+            self.slider_musique_y - self.hauteur_slider // 2,
+            self.slider_musique_y + self.hauteur_slider // 2,
+            (100, 150, 255)
+        )
+
+        # Curseur
+        arcade.draw_circle_filled(
+            x_gauche + remplissage,
+            self.slider_musique_y,
+            8,
+            arcade.color.WHITE
+        )
+
+    def dessiner_slider_sons(self):
+        """Dessine le slider de volume effets sonores."""
+        x_gauche = self.slider_sons_x - self.largeur_slider // 2
+
+        # Label
+        arcade.draw_text(
+            "Effets son",
+            x=self.slider_sons_x - self.largeur_slider // 2 - 20,
+            y=self.slider_sons_y,
+            color=arcade.color.WHITE,
+            font_size=14,
+            anchor_x="right",
+            anchor_y="center"
+        )
+
+        # Fond du slider
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, x_gauche + self.largeur_slider,
+            self.slider_sons_y - self.hauteur_slider // 2,
+            self.slider_sons_y + self.hauteur_slider // 2,
+            (60, 60, 60)
+        )
+
+        # Barre de progression
+        remplissage = int(self.largeur_slider * self.volume_sons / 100)
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, x_gauche + remplissage,
+            self.slider_sons_y - self.hauteur_slider // 2,
+            self.slider_sons_y + self.hauteur_slider // 2,
+            (100, 200, 100)
+        )
+
+        # Curseur
+        arcade.draw_circle_filled(
+            x_gauche + remplissage,
+            self.slider_sons_y,
+            8,
+            arcade.color.WHITE
+        )
+
+    def dessiner_bouton_quitter(self):
+        """Dessine le bouton Quitter (rectangle rouge)."""
+        x_gauche = self.quitter_x - self.largeur_quitter // 2
+        y_bas = self.quitter_y - self.hauteur_quitter // 2
+
+        # Rectangle rouge
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, self.quitter_x + self.largeur_quitter // 2,
+            y_bas, y_bas + self.hauteur_quitter,
+            (180, 50, 50)
+        )
+
+        # Texte
+        arcade.draw_text(
+            "Quitter",
+            x=self.quitter_x,
+            y=self.quitter_y,
+            color=arcade.color.WHITE,
+            font_size=20,
+            anchor_x="center",
+            anchor_y="center"
+        )
+
+    def dessiner_popup_confirmation(self):
+        """Dessine le popup de confirmation de quitter."""
+        # Fond sombre
+        arcade.draw_lrbt_rectangle_filled(
+            0, self.width,
+            0, self.height,
+            (0, 0, 0)
+        )
+
+        # Boîte du popup
+        popup_x = 300
+        popup_y = 250
+        popup_largeur = 200
+        popup_hauteur = 100
+
+        arcade.draw_lrbt_rectangle_filled(
+            popup_x, popup_x + popup_largeur,
+            popup_y, popup_y + popup_hauteur,
+            (80, 80, 80)
+        )
+
+        # Texte de confirmation
+        arcade.draw_text(
+            "Vous allez quitter le jeu",
+            x=popup_x + popup_largeur // 2,
+            y=popup_y + 50,
+            color=arcade.color.WHITE,
+            font_size=16,
+            anchor_x="center",
+            anchor_y="center"
+        )
+
+        # Compteur
+        reste = 3 - int(self.popup_timer)
+        arcade.draw_text(
+            f"Fermeture dans {reste}s...",
+            x=popup_x + popup_largeur // 2,
+            y=popup_y + 25,
+            color=arcade.color.LIGHT_GRAY,
+            font_size=12,
+            anchor_x="center",
+            anchor_y="center"
+        )
+
     def on_mouse_press(self, x, y, button, modifiers):
         """Gère les clics de souris."""
         if self.etaat == "MENU":
@@ -294,6 +468,44 @@ class FenetreJeu(arcade.Window):
             if (self.retour_x - self.retour_taille // 2 <= x <= self.retour_x + self.retour_taille // 2 and
                     self.retour_y - self.retour_taille // 2 <= y <= self.retour_y + self.retour_taille // 2):
                 self.etaat = "MENU"
+            # Vérifie si le clic est dans le bouton Quitter
+            elif self.etaat == "PARAMETRES":
+                if (self.quitter_x - self.largeur_quitter // 2 <= x <= self.quitter_x + self.largeur_quitter // 2 and
+                        self.quitter_y - self.hauteur_quitter // 2 <= y <= self.quitter_y + self.hauteur_quitter // 2):
+                    self.popup_affiche = True
+            # Vérifie si le clic est sur un slider
+            elif self.etaat == "PARAMETRES":
+                x_gauche_musique = self.slider_musique_x - self.largeur_slider // 2
+                x_gauche_sons = self.slider_sons_x - self.largeur_slider // 2
+                print(f"Clic PARAMETRES: x={x}, y={y}")
+                print(f"  Slider musique: x={x_gauche_musique}-{x_gauche_musique + self.largeur_slider}, y={self.slider_musique_y - 15}-{self.slider_musique_y + 15}")
+                print(f"  Slider sons: x={x_gauche_sons}-{x_gauche_sons + self.largeur_slider}, y={self.slider_sons_y - 15}-{self.slider_sons_y + 15}")
+                # Slider musique
+                if (x_gauche_musique <= x <= x_gauche_musique + self.largeur_slider and
+                        self.slider_musique_y - 15 <= y <= self.slider_musique_y + 15):
+                    print("  → Slider musique cliqué")
+                    self.curseur_en_cours = "musique"
+                    self.volume_musique = int(((x - x_gauche_musique) / self.largeur_slider) * 100)
+                # Slider sons
+                elif (x_gauche_sons <= x <= x_gauche_sons + self.largeur_slider and
+                      self.slider_sons_y - 15 <= y <= self.slider_sons_y + 15):
+                    print("  → Slider sons cliqué")
+                    self.curseur_en_cours = "sons"
+                    self.volume_sons = int(((x - x_gauche_sons) / self.largeur_slider) * 100)
+
+    def on_mouse_release(self, x, y, button, modifiers):
+        """Relâche le curseur en cours."""
+        self.curseur_en_cours = None
+
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        """Gère le déplacement des curseurs."""
+        if self.curseur_en_cours == "musique":
+            x_gauche = self.slider_musique_x - self.largeur_slider // 2
+            self.volume_musique = max(0, min(100, int(((x - x_gauche) / self.largeur_slider) * 100)))
+        elif self.curseur_en_cours == "sons":
+            x_gauche = self.slider_sons_x - self.largeur_slider // 2
+            self.volume_sons = max(0, min(100, int(((x - x_gauche) / self.largeur_slider) * 100)))
+
 
 
 
