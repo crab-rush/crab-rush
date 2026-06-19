@@ -458,7 +458,11 @@ class FenetreJeu(arcade.Window):
             # Vérifie si le clic est dans le bouton Jouer
             if (self.bouton_x - self.largeur_bouton // 2 <= x <= self.bouton_x + self.largeur_bouton // 2 and
                     self.bouton_y - self.hauteur_bouton // 2 <= y <= self.bouton_y + self.hauteur_bouton // 2):
-                self.etaat = "JEU"
+                # Fermer le menu et lancer le jeu
+                self.close()
+                from test_game import PrototypeJeu
+                jeu = PrototypeJeu()
+                jeu.run()
             # Vérifie si le clic est dans le bouton Paramètres
             elif (self.param_x - self.largeur_param // 2 <= x <= self.param_x + self.largeur_param // 2 and
                   self.param_y - self.hauteur_param // 2 <= y <= self.param_y + self.hauteur_param // 2):

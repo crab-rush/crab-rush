@@ -53,7 +53,8 @@ Jeu de plateforme 2D défilement latéral. Le joueur incarne un maître nageur q
 
 ## Fonctionnalités implémentées
 
-- [x] Écran de titre
+- [x] Écran de titre avec bouton "Jouer"
+- [x] Menu → transition vers le niveau 1
 - [x] Déplacement du joueur (gauche / droite)
 - [x] Sauter
 - [x] Se baisser
@@ -71,7 +72,7 @@ Jeu de plateforme 2D défilement latéral. Le joueur incarne un maître nageur q
 
 ## Fonctionnalités planifiées
 
-- 🪙 Pièces à collecter (Session 1 — en cours)
+- 🪙 Pièces à collecter (Session 2)
 - 🏪 Boutique d'améliorations entre les niveaux (Session 2)
 - 🔄 Système de revivre — payer 3 pièces pour continuer (Session 3)
 - 🗺️ Écran de sélection de niveaux (Session 4)
