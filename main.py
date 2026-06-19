@@ -18,7 +18,7 @@ class FenetreJeu(arcade.Window):
         self.couleur_bouton = (255, 165, 0)    # Jaune/orange
         self.couleur_bouton_fonce = (230, 140, 0)
 
-        # État du jeu : MENU ou JEU
+        # État du jeu : MENU, JEU ou PARAMETRES
         self.etaat = "MENU"
 
         # Bouton "Jouer"
@@ -26,6 +26,17 @@ class FenetreJeu(arcade.Window):
         self.hauteur_bouton = 60
         self.bouton_x = 400         # Centré horizontalement
         self.bouton_y = 150         # 1/4 de 600
+
+        # Bouton Paramètres (engrenage)
+        self.largeur_param = 50
+        self.hauteur_param = 50
+        self.param_x = 750          # Coin supérieur droit
+        self.param_y = 550
+
+        # Flèche retour
+        self.retour_x = 30
+        self.retour_y = 570
+        self.retour_taille = 30
 
         # Titre
         self.titre_texte = "🦀 Crab Rush"
@@ -35,8 +46,14 @@ class FenetreJeu(arcade.Window):
         self.clear()
         if self.etaat == "MENU":
             self.dessiner_menu()
-        else:
+        elif self.etaat == "JEU":
             self.dessiner_jeu()
+        else:
+            self.dessiner_parametres()
+
+        # Flèche retour (sur les écrans JEU et PARAMETRES)
+        if self.etaat != "MENU":
+            self.dessiner_flache_retour()
 
     def dessiner_menu(self):
         """Dessine l'écran de titre avec dégradé, titre et bouton."""
@@ -57,6 +74,9 @@ class FenetreJeu(arcade.Window):
 
         # Bouton "Jouer"
         self.dessiner_bouton_jouer()
+
+        # Bouton Paramètres
+        self.dessiner_bouton_parametres()
 
     def dessiner_degrade(self):
         """Dessine un dégradé vertical de bleu (haut) à sable (bas)."""
@@ -104,6 +124,81 @@ class FenetreJeu(arcade.Window):
             anchor_y="center"
         )
 
+    def dessiner_bouton_parametres(self):
+        """Dessine le bouton paramètres (carré gris avec engrenage)."""
+        x_gauche = self.param_x - self.largeur_param // 2
+        y_bas = self.param_y - self.hauteur_param // 2
+
+        # Carré gris avec coins légèrement arrondis
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, self.param_x + self.largeur_param // 2,
+            y_bas, y_bas + self.hauteur_param,
+            (100, 100, 100)
+        )
+
+        # Engrenage amélioré avec 8 dents
+        centre_x = self.param_x
+        centre_y = self.param_y
+        rayon_corps = 10
+        rayon_dent = 4
+        longueur_dent = 8
+        nb_dents = 8
+
+        # Corps central de l'engrenage
+        arcade.draw_circle_filled(centre_x, centre_y, rayon_corps, arcade.color.WHITE)
+
+        # 8 dents réparties autour
+        for i in range(nb_dents):
+            angle = (2 * 3.14159 * i) / nb_dents
+            x_dent = centre_x + (rayon_corps + longueur_dent / 2) * 0.7 * (angle if i % 2 == 0 else 0)
+            y_dent = centre_y + (rayon_corps + longueur_dent / 2) * 0.7 * (angle if i % 2 == 0 else 0)
+
+        # Dents horizontales et verticales (ronds)
+        # Haut
+        arcade.draw_circle_filled(
+            centre_x, centre_y + rayon_corps + longueur_dent / 2,
+            3, arcade.color.WHITE
+        )
+        # Bas
+        arcade.draw_circle_filled(
+            centre_x, centre_y - rayon_corps - longueur_dent / 2,
+            3, arcade.color.WHITE
+        )
+        # Gauche
+        arcade.draw_circle_filled(
+            centre_x - rayon_corps - longueur_dent / 2, centre_y,
+            3, arcade.color.WHITE
+        )
+        # Droite
+        arcade.draw_circle_filled(
+            centre_x + rayon_corps + longueur_dent / 2, centre_y,
+            3, arcade.color.WHITE
+        )
+        # Diagonales
+        arcade.draw_ellipse_filled(
+            centre_x + 10, centre_y + 10,
+            5, 5,
+            arcade.color.WHITE
+        )
+        arcade.draw_ellipse_filled(
+            centre_x - 10, centre_y + 10,
+            5, 5,
+            arcade.color.WHITE
+        )
+        arcade.draw_ellipse_filled(
+            centre_x + 10, centre_y - 10,
+            5, 5,
+            arcade.color.WHITE
+        )
+        arcade.draw_ellipse_filled(
+            centre_x - 10, centre_y - 10,
+            5, 5,
+            arcade.color.WHITE
+        )
+
+        # Trou central
+        arcade.draw_circle_filled(centre_x, centre_y, 3, (100, 100, 100))
+
     def dessiner_jeu(self):
         """Dessine l'écran de jeu (vide pour l'instant)."""
         # Fond uni sombre
@@ -133,18 +228,74 @@ class FenetreJeu(arcade.Window):
             anchor_y="center"
         )
 
+    def dessiner_parametres(self):
+        """Dessine l'écran des paramètres."""
+        # Fond uni sombre
+        arcade.draw_lrbt_rectangle_filled(
+            0, self.width,
+            0, self.height,
+            (50, 50, 50)
+        )
+
+        arcade.draw_text(
+            "Paramètres",
+            x=400,
+            y=350,
+            color=arcade.color.WHITE,
+            font_size=36,
+            anchor_x="center",
+            anchor_y="center"
+        )
+
+        arcade.draw_text(
+            "Bouton à définir — à venir...",
+            x=400,
+            y=280,
+            color=arcade.color.LIGHT_GRAY,
+            font_size=18,
+            anchor_x="center",
+            anchor_y="center"
+        )
+
+    def dessiner_flache_retour(self):
+        """Dessine la flèche retour (carré + triangle pointant à gauche)."""
+        centre_x = self.retour_x
+        centre_y = self.retour_y
+        taille = self.retour_taille
+
+        # Carré gris foncé
+        arcade.draw_lrbt_rectangle_filled(
+            centre_x - taille // 2, centre_x + taille // 2,
+            centre_y - taille // 2, centre_y + taille // 2,
+            (60, 60, 60)
+        )
+
+        # Triangle pointant vers la gauche
+        arcade.draw_triangle_filled(
+            centre_x + 5, centre_y - 8,
+            centre_x + 5, centre_y + 8,
+            centre_x - 8, centre_y,
+            arcade.color.WHITE
+        )
+
     def on_mouse_press(self, x, y, button, modifiers):
         """Gère les clics de souris."""
         if self.etaat == "MENU":
-            # Vérifie si le clic est dans le bouton
+            # Vérifie si le clic est dans le bouton Jouer
             if (self.bouton_x - self.largeur_bouton // 2 <= x <= self.bouton_x + self.largeur_bouton // 2 and
                     self.bouton_y - self.hauteur_bouton // 2 <= y <= self.bouton_y + self.hauteur_bouton // 2):
                 self.etaat = "JEU"
+            # Vérifie si le clic est dans le bouton Paramètres
+            elif (self.param_x - self.largeur_param // 2 <= x <= self.param_x + self.largeur_param // 2 and
+                  self.param_y - self.hauteur_param // 2 <= y <= self.param_y + self.hauteur_param // 2):
+                self.etaat = "PARAMETRES"
+        elif self.etaat in ["JEU", "PARAMETRES"]:
+            # Vérifie si le clic est dans la flèche retour
+            if (self.retour_x - self.retour_taille // 2 <= x <= self.retour_x + self.retour_taille // 2 and
+                    self.retour_y - self.retour_taille // 2 <= y <= self.retour_y + self.retour_taille // 2):
+                self.etaat = "MENU"
 
-    def on_key_press(self, key, modifiers):
-        """Gère les touches du clavier."""
-        if key == arcade.esc_key and self.etaat == "JEU":
-            self.etaat = "MENU"
+
 
 
 def main():
