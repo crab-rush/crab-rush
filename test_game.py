@@ -376,7 +376,7 @@ class PrototypeJeu(arcade.Window):
 
     def on_draw(self) -> None:
         """Dessine le jeu."""
-        arcade.start_render()
+        self.clear()
         arcade.draw_text(
             f"❤️ 1  |  ⏱ {self.temps_ecoule:.1f}s",
             10, SCREEN_HEIGHT - 30,
@@ -405,9 +405,9 @@ class PrototypeJeu(arcade.Window):
     def _dessiner_niveau(self) -> None:
         """Dessine le niveau avec défilement."""
         # Ciel (fond)
-        arcade.draw_rectangle_filled(
-            SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
-            SCREEN_WIDTH, SCREEN_HEIGHT,
+        arcade.draw_lrbt_rectangle_filled(
+            0, SCREEN_WIDTH,
+            0, SCREEN_HEIGHT,
             COULEUR_CIEL
         )
 
@@ -415,11 +415,9 @@ class PrototypeJeu(arcade.Window):
         for sol in self.sols:
             px = sol.x * TILE_SIZE - self.camera_x * TILE_SIZE
             py = sol.y * TILE_SIZE
-            arcade.draw_rectangle_filled(
-                px + sol.width * TILE_SIZE // 2,
-                py + sol.height * TILE_SIZE // 2,
-                sol.width * TILE_SIZE,
-                sol.height * TILE_SIZE,
+            arcade.draw_lrbt_rectangle_filled(
+                px, px + sol.width * TILE_SIZE,
+                py, py + sol.height * TILE_SIZE,
                 COULEUR_SABLE
             )
 
@@ -427,11 +425,9 @@ class PrototypeJeu(arcade.Window):
         for obs in self.obstacles_bas:
             px = obs.x * TILE_SIZE - self.camera_x * TILE_SIZE
             py = obs.y * TILE_SIZE
-            arcade.draw_rectangle_filled(
-                px + obs.width * TILE_SIZE // 2,
-                py + obs.height * TILE_SIZE // 2,
-                obs.width * TILE_SIZE,
-                obs.height * TILE_SIZE,
+            arcade.draw_lrbt_rectangle_filled(
+                px, px + obs.width * TILE_SIZE,
+                py, py + obs.height * TILE_SIZE,
                 COULEUR_TROU
             )
 
@@ -439,20 +435,18 @@ class PrototypeJeu(arcade.Window):
         for obs in self.obstacles_haut:
             px = obs.x * TILE_SIZE - self.camera_x * TILE_SIZE
             py = obs.y * TILE_SIZE
-            arcade.draw_rectangle_filled(
-                px + obs.width * TILE_SIZE // 2,
-                py + obs.height * TILE_SIZE // 2,
-                obs.width * TILE_SIZE,
-                obs.height * TILE_SIZE,
+            arcade.draw_lrbt_rectangle_filled(
+                px, px + obs.width * TILE_SIZE,
+                py, py + obs.height * TILE_SIZE,
                 COULEUR_OBSTACLE_HAUT
             )
 
         # Arrivée (eau)
         arr_x = self.niveau["arrivee"].x * TILE_SIZE - self.camera_x * TILE_SIZE
         arr_y = self.niveau["arrivee"].y * TILE_SIZE
-        arcade.draw_rectangle_filled(
-            arr_x + TILE_SIZE // 2, arr_y + TILE_SIZE // 2,
-            TILE_SIZE, TILE_SIZE,
+        arcade.draw_lrbt_rectangle_filled(
+            arr_x, arr_x + TILE_SIZE,
+            arr_y, arr_y + TILE_SIZE,
             COULEUR_EAU
         )
         arcade.draw_text("🏊", arr_x + TILE_SIZE // 2, arr_y + TILE_SIZE // 2 + 5,
@@ -461,9 +455,9 @@ class PrototypeJeu(arcade.Window):
         # Départ
         dep_x = self.niveau["depart"].x * TILE_SIZE - self.camera_x * TILE_SIZE
         dep_y = self.niveau["depart"].y * TILE_SIZE
-        arcade.draw_rectangle_filled(
-            dep_x + TILE_SIZE // 2, dep_y + TILE_SIZE // 2,
-            TILE_SIZE, TILE_SIZE,
+        arcade.draw_lrbt_rectangle_filled(
+            dep_x, dep_x + TILE_SIZE,
+            dep_y, dep_y + TILE_SIZE,
             arcade.color.GREEN_YELLOW
         )
 
@@ -482,11 +476,9 @@ class PrototypeJeu(arcade.Window):
         # Joueur
         px_j = self.joueur.x * TILE_SIZE - self.camera_x * TILE_SIZE
         py_j = self.joueur.y * TILE_SIZE
-        arcade.draw_rectangle_filled(
-            px_j + self.joueur.largeur // 2,
-            py_j + self.joueur.hauteur // 2,
-            self.joueur.largeur,
-            self.joueur.hauteur,
+        arcade.draw_lrbt_rectangle_filled(
+            px_j, px_j + self.joueur.largeur,
+            py_j, py_j + self.joueur.hauteur,
             COULEUR_JOUEUR
         )
         # Icône joueur
@@ -498,9 +490,9 @@ class PrototypeJeu(arcade.Window):
         if self.joueur.en_attaque:
             attack_x = px_j + (self.joueur.largeur if self.joueur.facing_right else 0)
             attack_y = py_j
-            arcade.draw_rectangle_filled(
-                attack_x + 15, attack_y + 15,
-                30, 30,
+            arcade.draw_lrbt_rectangle_filled(
+                attack_x, attack_x + 30,
+                attack_y, attack_y + 30,
                 arcade.color.YELLOW
             )
 
