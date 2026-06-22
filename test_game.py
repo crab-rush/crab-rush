@@ -23,10 +23,10 @@ from typing import List, Optional
 TILE_SIZE = 40
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
-GRAVITY = 0.5
-JUMP_FORCE = 10  # Positif = vers le haut (y augmente vers le haut dans Arcade)
-MOVE_SPEED = 4
-LEVEL_WIDTH = 30  # nombre de cases de large
+GRAVITY = 0.5          # pixels/frame, tir vers le bas (vy diminue)
+JUMP_FORCE = 10        # pixels/frame, vers le haut (vy positif = monter)
+MOVE_SPEED = 4         # pixels/frame
+LEVEL_WIDTH = 30       # nombre de cases de large
 
 # Couleurs
 COULEUR_CIEL = arcade.color.AQUA
@@ -110,22 +110,29 @@ def creer_niveau() -> dict:
               direction=1, patrol_start=22, patrol_end=27),
     ]
 
+    # Sols : segments continus avec des trous (gaps) entre eux
+    sols: List[Sol] = [
+        Sol(x=0, y=0, width=4, height=1),   # sol 0-3
+        Sol(x=6, y=0, width=2, height=1),   # sol 6-7
+        Sol(x=9, y=0, width=5, height=1),   # sol 9-13
+        Sol(x=15, y=0, width=5, height=1),  # sol 15-19
+        Sol(x=21, y=0, width=5, height=1),  # sol 21-25
+        Sol(x=27, y=0, width=3, height=1),  # sol 27-29
+    ]
+
+    # Trous : positions des gaps dans le sol (pour le dessin uniquement)
     obstacles_bas: List[ObstacleBas] = [
-        ObstacleBas(x=4, y=0, width=2, height=1),   # trou 1
-        ObstacleBas(x=8, y=0, width=2, height=1),   # trou 2
-        ObstacleBas(x=14, y=0, width=2, height=1),  # trou 3
-        ObstacleBas(x=20, y=0, width=2, height=1),  # trou 4
-        ObstacleBas(x=26, y=0, width=2, height=1),  # trou 5
+        ObstacleBas(x=4, y=0, width=2, height=1),   # trou entre sol 0-3 et 6-7
+        ObstacleBas(x=8, y=0, width=1, height=1),   # trou entre sol 6-7 et 9-13
+        ObstacleBas(x=14, y=0, width=1, height=1),  # trou entre sol 9-13 et 15-19
+        ObstacleBas(x=20, y=0, width=1, height=1),  # trou entre sol 15-19 et 21-25
+        ObstacleBas(x=26, y=0, width=1, height=1),  # trou entre sol 21-25 et 27-29
     ]
 
     obstacles_haut: List[ObstacleHaut] = [
-        ObstacleHaut(x=10, y=2, width=3, height=1),  # filet bas
-        ObstacleHaut(x=16, y=2, width=2, height=1),  # branche
-        ObstacleHaut(x=22, y=2, width=3, height=1),  # filet bas
-    ]
-
-    sols: List[Sol] = [
-        Sol(x=0, y=0, width=LEVEL_WIDTH, height=1),  # sol principal
+        ObstacleHaut(x=10, y=4, width=3, height=1),  # filet bas (à hauteur de tête)
+        ObstacleHaut(x=16, y=4, width=2, height=1),  # branche (à hauteur de tête)
+        ObstacleHaut(x=22, y=4, width=3, height=1),  # filet bas (à hauteur de tête)
     ]
 
     depart = Position(1, 0)
@@ -146,34 +153,40 @@ class Joueur:
     """Le maître nageur."""
 
     def __init__(self, x: int, y: int) -> None:
+        # Position en unités de tuiles (tiles)
         self.x = x
         self.y = y
+        # Vitesse en pixels/frame
         self.vx = 0
         self.vy = 0
+        # Dimensions en pixels
         self.largeur = 30
         self.hauteur_normale = 35
         self.hauteur_baisse = 20
         self.hauteur = self.hauteur_normale
         self.est_baisse = False
         self.est_saut = False
-        self.est_sol = False
+        self.est_sol = False  # Indique si le joueur est posé au sol
         self.en_attaque = False
         self.temps_attaque = 0.0
         self.facing_right = True
         self.vie = 1
 
-    def deplacer(self, dx: int, touches: set) -> None:
+    def deplacer(self, dx: int, touches: set, dt: float = 1.0) -> None:
         """Déplace le joueur horizontalement."""
         # Sauter uniquement si on est au sol
         if arcade.key.UP in touches or arcade.key.W in touches or arcade.key.Z in touches:
             if self.est_sol:
-                self.vy = JUMP_FORCE  # Positif = monter
+                self.vy = JUMP_FORCE  # Positif = monter (y augmente vers le haut)
                 self.est_saut = True
                 self.est_sol = False
-        if arcade.key.SPACE in touches:
+
+        # Attaque
+        if arcade.key.SPACE in touches and not self.en_attaque:
             self.en_attaque = True
             self.temps_attaque = 0.3
 
+        # Mouvement horizontal (vx en pixels/frame)
         if dx > 0:
             self.vx = MOVE_SPEED
             self.facing_right = True
@@ -194,40 +207,39 @@ class Joueur:
 
     def update(self, dt: float, sols: List[Sol], niveau_largeur: int) -> None:
         """Met à jour la physique du joueur."""
-        # Gravité : s'applique uniquement si on n'est pas au sol (tire vers le bas)
-        if not self.est_sol:
-            self.vy -= GRAVITY
-
-        # Mouvement horizontal
-        nouvelle_x = self.x + self.vx * dt
+        # Mouvement horizontal (convertir pixels en tiles)
+        nouvelle_x = self.x + (self.vx * dt) / TILE_SIZE
         if 0 <= nouvelle_x <= niveau_largeur - 1:
             self.x = nouvelle_x
 
-        # Mouvement vertical
-        nouvelle_y = self.y + self.vy * dt
-
-        # Collision avec le sol
-        self.est_sol = False
+        # Vérifier si le joueur est au sol (centre x au-dessus d'un segment)
+        centre_x_pixel = self.x * TILE_SIZE + self.largeur / 2
+        on_sol = False
+        sol_actif = None
         for sol in sols:
-            # Rectangle du sol en pixels
-            sol_px = Rectangle(
-                sol.x * TILE_SIZE, sol.y * TILE_SIZE,
-                sol.width * TILE_SIZE, sol.height * TILE_SIZE
-            )
-            # Rectangle du joueur en pixels
-            player_px = Rectangle(
-                int(self.x) * TILE_SIZE,
-                int(nouvelle_y) * TILE_SIZE,
-                self.largeur, self.hauteur
-            )
-            if self._rects_overlap(player_px, sol_px):
-                # Le joueur tombe sur le sol (vy négatif = descend) → on le pose dessus
-                if self.vy < 0:
-                    nouvelle_y = sol.y + sol.height
-                    self.vy = 0
-                    self.est_sol = True
-                    self.est_saut = False
+            sol_gauche = sol.x * TILE_SIZE
+            sol_droite = (sol.x + sol.width) * TILE_SIZE
+            sol_haut = (sol.y + sol.height) * TILE_SIZE
+            if sol_gauche <= centre_x_pixel < sol_droite:
+                on_sol = True
+                sol_actif = sol
+                sol_haut_pixel = sol_haut
+                break
 
+        if on_sol and sol_actif:
+            # Poser le joueur sur le sol (en pixels, puis convertir en tiles)
+            sol_haut_pixel = (sol_actif.y + sol_actif.height) * TILE_SIZE
+            self.y = (sol_haut_pixel - self.hauteur) / TILE_SIZE
+            self.vy = 0
+            self.est_sol = True
+            self.est_saut = False
+        else:
+            self.est_sol = False
+            # Gravité : tire vers le bas (vy diminue)
+            self.vy -= GRAVITY
+
+        # Mouvement vertical (convertir pixels en tiles)
+        nouvelle_y = self.y + (self.vy * dt) / TILE_SIZE
         self.y = nouvelle_y
 
         # Limite droite du niveau
@@ -242,7 +254,12 @@ class Joueur:
 
     def get_rect(self) -> Rectangle:
         """Retourne le rectangle du joueur en pixels."""
-        return Rectangle(int(self.x) * TILE_SIZE, int(self.y) * TILE_SIZE, self.largeur, self.hauteur)
+        return Rectangle(
+            int(self.x * TILE_SIZE),
+            int(self.y * TILE_SIZE),
+            self.largeur,
+            self.hauteur
+        )
 
     @staticmethod
     def _rects_overlap(r1: Rectangle, r2: Rectangle) -> bool:
@@ -324,7 +341,7 @@ class PrototypeJeu(arcade.Window):
             dx = 1
         elif arcade.key.LEFT in self.touches or arcade.key.Q in self.touches:
             dx = -1
-        self.joueur.deplacer(dx, self.touches)
+        self.joueur.deplacer(dx, self.touches, dt)
         self.joueur.se_baisser(
             arcade.key.DOWN in self.touches or arcade.key.S in self.touches
         )
@@ -348,29 +365,29 @@ class PrototypeJeu(arcade.Window):
             for crabe in self.crabes:
                 if crabe.alive:
                     crabe_rect = crabe.get_rect()
-                    attack_rect = Rectangle(
-                        int(self.joueur.x) * TILE_SIZE + (30 if self.joueur.facing_right else -30),
-                        int(self.joueur.y) * TILE_SIZE,
-                        30, 30
-                    )
+                    attack_x = int(self.joueur.x * TILE_SIZE) + (self.joueur.largeur if self.joueur.facing_right else -30)
+                    attack_rect = Rectangle(attack_x, int(self.joueur.y * TILE_SIZE), 30, self.joueur.hauteur)
                     if self._rects_overlap(attack_rect, crabe_rect):
                         crabe.alive = False
 
-        # Collision avec obstacles bas (trous)
-        for obs in self.obstacles_bas:
-            obs_rect = Rectangle(obs.x * TILE_SIZE, obs.y * TILE_SIZE, obs.width * TILE_SIZE, obs.height * TILE_SIZE)
-            if self._rects_overlap(joueur_rect, obs_rect):
-                self.defaite = True
-                self.message = "💀 Tu es tombé dans un trou ! Appuie sur R pour réessayer."
-                return
+        # Le joueur tombe dans un trou automatiquement via la physique
+        if self.joueur.y * TILE_SIZE < -200:
+            self.defaite = True
+            self.message = "💀 Tu es tombé dans un trou ! Appuie sur R pour réessayer."
 
-        # Collision avec obstacles haut (se baisser)
+        # Collision avec obstacles haut (se baisser pour passer dessous)
         for obs in self.obstacles_haut:
-            obs_rect = Rectangle(obs.x * TILE_SIZE, obs.y * TILE_SIZE, obs.width * TILE_SIZE, obs.height * TILE_SIZE)
-            if self._rects_overlap(joueur_rect, obs_rect):
-                self.defaite = True
-                self.message = "🚧 Obstacle ! Tu devais te baisser ! Appuie sur R."
-                return
+            centre_x_pixel = self.joueur.x * TILE_SIZE + self.joueur.largeur / 2
+            obs_gauche = obs.x * TILE_SIZE
+            obs_droite = (obs.x + obs.width) * TILE_SIZE
+            if obs_gauche <= centre_x_pixel < obs_droite:
+                obs_haut_pixel = (obs.y + obs.height) * TILE_SIZE
+                joueur_haut_pixel = self.joueur.y * TILE_SIZE + self.joueur.hauteur
+                if joueur_haut_pixel > obs_haut_pixel:
+                    if not self.joueur.est_baisse:
+                        self.defaite = True
+                        self.message = "🚧 Obstacle ! Tu devais te baisser ! Appuie sur R."
+                        return
 
         # Victoire
         if self.joueur.x >= self.niveau["arrivee"].x:
@@ -382,7 +399,7 @@ class PrototypeJeu(arcade.Window):
             )
 
         # Camera suit le joueur
-        self.camera_x = self.joueur.x - SCREEN_WIDTH / (2 * TILE_SIZE)
+        self.camera_x = (self.joueur.x * TILE_SIZE - SCREEN_WIDTH / 2) / TILE_SIZE
 
     def on_draw(self) -> None:
         """Dessine le jeu."""
