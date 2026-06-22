@@ -110,22 +110,29 @@ def creer_niveau() -> dict:
               direction=1, patrol_start=22, patrol_end=27),
     ]
 
+    # Sols : segments continus avec des trous (gaps) entre eux
+    sols: List[Sol] = [
+        Sol(x=0, y=0, width=4, height=1),   # sol 0-3
+        Sol(x=6, y=0, width=2, height=1),   # sol 6-7
+        Sol(x=9, y=0, width=5, height=1),   # sol 9-13
+        Sol(x=15, y=0, width=5, height=1),  # sol 15-19
+        Sol(x=21, y=0, width=5, height=1),  # sol 21-25
+        Sol(x=27, y=0, width=3, height=1),  # sol 27-29
+    ]
+
+    # Trous : positions des gaps dans le sol (pour le dessin uniquement)
     obstacles_bas: List[ObstacleBas] = [
-        ObstacleBas(x=4, y=0, width=2, height=1),   # trou 1
-        ObstacleBas(x=8, y=0, width=2, height=1),   # trou 2
-        ObstacleBas(x=14, y=0, width=2, height=1),  # trou 3
-        ObstacleBas(x=20, y=0, width=2, height=1),  # trou 4
-        ObstacleBas(x=26, y=0, width=2, height=1),  # trou 5
+        ObstacleBas(x=4, y=0, width=2, height=1),   # trou entre sol 0-3 et 6-7
+        ObstacleBas(x=8, y=0, width=1, height=1),   # trou entre sol 6-7 et 9-13
+        ObstacleBas(x=14, y=0, width=1, height=1),  # trou entre sol 9-13 et 15-19
+        ObstacleBas(x=20, y=0, width=1, height=1),  # trou entre sol 15-19 et 21-25
+        ObstacleBas(x=26, y=0, width=1, height=1),  # trou entre sol 21-25 et 27-29
     ]
 
     obstacles_haut: List[ObstacleHaut] = [
-        ObstacleHaut(x=10, y=2, width=3, height=1),  # filet bas
-        ObstacleHaut(x=16, y=2, width=2, height=1),  # branche
-        ObstacleHaut(x=22, y=2, width=3, height=1),  # filet bas
-    ]
-
-    sols: List[Sol] = [
-        Sol(x=0, y=0, width=LEVEL_WIDTH, height=1),  # sol principal
+        ObstacleHaut(x=10, y=4, width=3, height=1),  # filet bas (à hauteur de tête)
+        ObstacleHaut(x=16, y=4, width=2, height=1),  # branche (à hauteur de tête)
+        ObstacleHaut(x=22, y=4, width=3, height=1),  # filet bas (à hauteur de tête)
     ]
 
     depart = Position(1, 0)
@@ -161,13 +168,16 @@ class Joueur:
         self.facing_right = True
         self.vie = 1
 
-    def deplacer(self, dx: int, touches: set) -> None:
+    def deplacer(self, dx: int, touches: set, dt: float = 1.0) -> None:
         """Déplace le joueur horizontalement."""
-        if arcade.key.UP in touches or arcade.key.W in touches or arcade.key.Z in touches:
-            if not self.est_saut:
+        # Saut : une seule fois, uniquement si au sol
+        if (arcade.key.UP in touches or arcade.key.W in touches or arcade.key.Z in touches):
+            if not self.est_saut and not self.est_baisse:
                 self.vy = JUMP_FORCE
                 self.est_saut = True
-        if arcade.key.SPACE in touches:
+
+        # Attaque : une seule fois par pression, uniquement si pas déjà en attaque
+        if arcade.key.SPACE in touches and not self.en_attaque:
             self.en_attaque = True
             self.temps_attaque = 0.3
 
@@ -191,33 +201,35 @@ class Joueur:
 
     def update(self, dt: float, sols: List[Sol], niveau_largeur: int) -> None:
         """Met à jour la physique du joueur."""
-        # Gravité
-        if not self.est_baisse:
-            self.vy += GRAVITY
-
         # Mouvement horizontal
         nouvelle_x = self.x + self.vx * dt
         if 0 <= nouvelle_x <= niveau_largeur - 1:
             self.x = nouvelle_x
 
-        # Mouvement vertical
-        nouvelle_y = self.y + self.vy * dt
-
-        # Collision avec le sol
+        # Vérifier si le joueur est au sol (son centre est au-dessus d'un segment de sol)
+        centre_x_tile = int(self.x + self.largeur / 2)
         on_sol = False
         for sol in sols:
-            sol_rect = Rectangle(sol.x, sol.y, sol.width, sol.height)
-            player_rect = Rectangle(
-                int(self.x), int(nouvelle_y),
-                self.largeur, self.hauteur
-            )
-            if self._rects_overlap(player_rect, sol_rect):
-                if self.vy < 0:
-                    nouvelle_y = sol.y + sol.height
-                    self.vy = 0
-                    on_sol = True
-                    self.est_saut = False
+            if sol.x <= centre_x_tile < sol.x + sol.width:
+                on_sol = True
+                break
 
+        # Collision avec le sol : poser le joueur sur le segment de sol actif
+        if on_sol:
+            # Trouver le segment de sol sous le joueur et le poser dessus
+            for sol in sols:
+                if sol.x <= centre_x_tile < sol.x + sol.width:
+                    self.y = sol.y + sol.height - self.hauteur
+                    self.vy = 0
+                    self.est_saut = False
+                    break
+
+        # Gravité (uniquement si pas sur le sol)
+        if not on_sol and not self.est_baisse:
+            self.vy += GRAVITY
+
+        # Mouvement vertical
+        nouvelle_y = self.y + self.vy * dt
         self.y = nouvelle_y
 
         # Limite droite du niveau
@@ -314,7 +326,7 @@ class PrototypeJeu(arcade.Window):
             dx = 1
         elif arcade.key.LEFT in self.touches or arcade.key.Q in self.touches:
             dx = -1
-        self.joueur.deplacer(dx, self.touches)
+        self.joueur.deplacer(dx, self.touches, dt)
         self.joueur.se_baisser(
             arcade.key.DOWN in self.touches or arcade.key.S in self.touches
         )
@@ -338,29 +350,29 @@ class PrototypeJeu(arcade.Window):
             for crabe in self.crabes:
                 if crabe.alive:
                     crabe_rect = crabe.get_rect()
-                    attack_rect = Rectangle(
-                        int(self.joueur.x) * TILE_SIZE + (30 if self.joueur.facing_right else -30),
-                        int(self.joueur.y) * TILE_SIZE,
-                        30, 30
-                    )
+                    # L'attaque est dans la direction où regarde le joueur
+                    attack_x = int(self.joueur.x) + (self.joueur.largeur if self.joueur.facing_right else -30)
+                    attack_rect = Rectangle(attack_x, int(self.joueur.y), 30, self.joueur.hauteur)
                     if self._rects_overlap(attack_rect, crabe_rect):
                         crabe.alive = False
 
-        # Collision avec obstacles bas (trous)
-        for obs in self.obstacles_bas:
-            obs_rect = Rectangle(obs.x * TILE_SIZE, obs.y * TILE_SIZE, obs.width * TILE_SIZE, obs.height * TILE_SIZE)
-            if self._rects_overlap(joueur_rect, obs_rect):
-                self.defaite = True
-                self.message = "💀 Tu es tombé dans un trou ! Appuie sur R pour réessayer."
-                return
+        # Le joueur tombe dans un trou automatiquement via la physique
+        # (pas de collision explicite nécessaire — le joueur n'est plus au sol)
+        # Vérifier si le joueur est tombé hors de l'écran
+        if self.joueur.y < -200:
+            self.defaite = True
+            self.message = "💀 Tu es tombé dans un trou ! Appuie sur R pour réessayer."
 
-        # Collision avec obstacles haut (se baisser)
+        # Collision avec obstacles haut (se baisser pour passer dessous)
         for obs in self.obstacles_haut:
-            obs_rect = Rectangle(obs.x * TILE_SIZE, obs.y * TILE_SIZE, obs.width * TILE_SIZE, obs.height * TILE_SIZE)
-            if self._rects_overlap(joueur_rect, obs_rect):
-                self.defaite = True
-                self.message = "🚧 Obstacle ! Tu devais te baisser ! Appuie sur R."
-                return
+            # Vérifier si le joueur est horizontalement aligné avec l'obstacle
+            if (obs.x <= self.joueur.x + self.joueur.largeur / 2 < obs.x + obs.width):
+                # Vérifier si le joueur est assez petit (couché) pour passer dessous
+                if self.joueur.y + self.joueur.hauteur > obs.y:
+                    if not self.joueur.est_baisse:
+                        self.defaite = True
+                        self.message = "🚧 Obstacle ! Tu devais te baisser ! Appuie sur R."
+                        return
 
         # Victoire
         if self.joueur.x >= self.niveau["arrivee"].x:
@@ -371,8 +383,8 @@ class PrototypeJeu(arcade.Window):
                 f"Appuie sur R pour recommencer."
             )
 
-        # Camera suit le joueur
-        self.camera_x = self.joueur.x - SCREEN_WIDTH / (2 * TILE_SIZE)
+        # Camera suit le joueur (convertir en pixels puis soustraire la moitié de l'écran)
+        self.camera_x = (self.joueur.x * TILE_SIZE - SCREEN_WIDTH / 2) / TILE_SIZE
 
     def on_draw(self) -> None:
         """Dessine le jeu."""
