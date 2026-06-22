@@ -112,13 +112,14 @@ def creer_niveau() -> dict:
 
     # Sols : segments continus avec des trous (gaps) entre eux
     sols: List[Sol] = [
-        Sol(x=0, y=0, width=4, height=1),   # sol 0-3
+        Sol(x=0, y=0, width=4, height=1),   # sol 0-3 (y=0 à 40px)
         Sol(x=6, y=0, width=2, height=1),   # sol 6-7
         Sol(x=9, y=0, width=5, height=1),   # sol 9-13
         Sol(x=15, y=0, width=5, height=1),  # sol 15-19
         Sol(x=21, y=0, width=5, height=1),  # sol 21-25
         Sol(x=27, y=0, width=3, height=1),  # sol 27-29
     ]
+    # Note : le sol va de y=0 à y=40px. Le joueur se pose SUR le sol (y=40px = tile 1)
 
     # Trous : positions des gaps dans le sol (pour le dessin uniquement)
     obstacles_bas: List[ObstacleBas] = [
@@ -227,9 +228,9 @@ class Joueur:
                 break
 
         if on_sol and sol_actif:
-            # Poser le joueur sur le sol (en pixels, puis convertir en tiles)
+            # Poser le joueur SUR le sol (pieds au niveau du haut du sol)
             sol_haut_pixel = (sol_actif.y + sol_actif.height) * TILE_SIZE
-            self.y = (sol_haut_pixel - self.hauteur) / TILE_SIZE
+            self.y = sol_haut_pixel / TILE_SIZE  # pieds du joueur au niveau du sol
             self.vy = 0
             self.est_sol = True
             self.est_saut = False
