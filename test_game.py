@@ -24,7 +24,7 @@ TILE_SIZE = 40
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 GRAVITY = 0.5
-JUMP_FORCE = -10
+JUMP_FORCE = -10  # Hauteur ~2 crabes (40 px chacun) = ~100 px de hauteur max
 MOVE_SPEED = 4
 LEVEL_WIDTH = 30  # nombre de cases de large
 
@@ -156,6 +156,7 @@ class Joueur:
         self.hauteur = self.hauteur_normale
         self.est_baisse = False
         self.est_saut = False
+        self.est_sol = False  # Indique si le joueur est posé au sol
         self.en_attaque = False
         self.temps_attaque = 0.0
         self.facing_right = True
@@ -163,10 +164,12 @@ class Joueur:
 
     def deplacer(self, dx: int, touches: set) -> None:
         """Déplace le joueur horizontalement."""
+        # Sauter uniquement si on est au sol
         if arcade.key.UP in touches or arcade.key.W in touches or arcade.key.Z in touches:
-            if not self.est_saut:
+            if not self.est_saut and self.est_sol:
                 self.vy = JUMP_FORCE
                 self.est_saut = True
+                self.est_sol = False
         if arcade.key.SPACE in touches:
             self.en_attaque = True
             self.temps_attaque = 0.3
@@ -191,8 +194,8 @@ class Joueur:
 
     def update(self, dt: float, sols: List[Sol], niveau_largeur: int) -> None:
         """Met à jour la physique du joueur."""
-        # Gravité
-        if not self.est_baisse:
+        # Gravité : s'applique uniquement si on n'est pas au sol
+        if not self.est_sol:
             self.vy += GRAVITY
 
         # Mouvement horizontal
@@ -203,19 +206,26 @@ class Joueur:
         # Mouvement vertical
         nouvelle_y = self.y + self.vy * dt
 
-        # Collision avec le sol
-        on_sol = False
+        # Collision avec le sol (en pixels pour être cohérent)
+        self.est_sol = False
         for sol in sols:
-            sol_rect = Rectangle(sol.x, sol.y, sol.width, sol.height)
+            # Rectangle du sol en pixels
+            sol_rect = Rectangle(
+                sol.x * TILE_SIZE, sol.y * TILE_SIZE,
+                sol.width * TILE_SIZE, sol.height * TILE_SIZE
+            )
+            # Rectangle du joueur en pixels
             player_rect = Rectangle(
-                int(self.x), int(nouvelle_y),
+                int(self.x) * TILE_SIZE,
+                int(nouvelle_y) * TILE_SIZE,
                 self.largeur, self.hauteur
             )
             if self._rects_overlap(player_rect, sol_rect):
                 if self.vy < 0:
+                    # Le joueur touche le sol → on le pose dessus
                     nouvelle_y = sol.y + sol.height
                     self.vy = 0
-                    on_sol = True
+                    self.est_sol = True
                     self.est_saut = False
 
         self.y = nouvelle_y
