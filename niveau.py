@@ -1,22 +1,12 @@
 """
-Crab Rush — Prototype test (Niveau 1)
+Crab Rush — Niveau 1 (Prototype intégré)
 
-Jeu de plateforme 2D défilement latéral (gauche → droite).
-- Le maître nageur traverse la plage pour sauver une personne qui se noie
-- Flèches / ZQSD : déplacer
-- Espace / Z : sauter
-- Bas / S : se baisser
-- Espace : frapper les crabes
-- R : recommencer
-- Echap : quitter
-
-Niveau 1 — Première Sauveterie (Facile)
+Jeu de plateforme 2D défilement latéral.
 """
 
 import arcade
-import math
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
 
 
 # ─── Constantes ───────────────────────────────────────────────
@@ -26,18 +16,16 @@ SCREEN_HEIGHT = 600
 GRAVITY = 0.5
 JUMP_FORCE = -10
 MOVE_SPEED = 4
-LEVEL_WIDTH = 30  # nombre de cases de large
+LEVEL_WIDTH = 30
 
 # Couleurs
 COULEUR_CIEL = arcade.color.AQUA
 COULEUR_SABLE = arcade.color.YELLOW
-COULEUR_SABLE_MOURE = arcade.color.ORANGE
 COULEUR_TROU = arcade.color.BLACK
 COULEUR_EAU = arcade.color.TEAL
 COULEUR_CRABE = arcade.color.RED
 COULEUR_JOUEUR = arcade.color.BLUE
 COULEUR_TEXT = arcade.color.WHITE
-COULEUR_OBSTACLE_BAS = arcade.color.BROWN
 COULEUR_OBSTACLE_HAUT = arcade.color.DARK_GREEN
 
 
@@ -63,7 +51,7 @@ class CrabeConfig:
     width: int
     height: int
     vitesse: float
-    direction: int  # 1 = droite, -1 = gauche
+    direction: int
     alive: bool = True
     patrol_start: int = 0
     patrol_end: int = 0
@@ -71,7 +59,6 @@ class CrabeConfig:
 
 @dataclass
 class ObstacleBas:
-    """Obstacle qu'il faut sauter (trou, piquet)."""
     x: int
     y: int
     width: int
@@ -80,7 +67,6 @@ class ObstacleBas:
 
 @dataclass
 class ObstacleHaut:
-    """Obstacle qu'il faut éviter en se baissant (branche, filet bas)."""
     x: int
     y: int
     width: int
@@ -89,7 +75,6 @@ class ObstacleHaut:
 
 @dataclass
 class Sol:
-    """Bande de sol."""
     x: int
     y: int
     width: int
@@ -111,21 +96,21 @@ def creer_niveau() -> dict:
     ]
 
     obstacles_bas: List[ObstacleBas] = [
-        ObstacleBas(x=4, y=0, width=2, height=1),   # trou 1
-        ObstacleBas(x=8, y=0, width=2, height=1),   # trou 2
-        ObstacleBas(x=14, y=0, width=2, height=1),  # trou 3
-        ObstacleBas(x=20, y=0, width=2, height=1),  # trou 4
-        ObstacleBas(x=26, y=0, width=2, height=1),  # trou 5
+        ObstacleBas(x=4, y=0, width=2, height=1),
+        ObstacleBas(x=8, y=0, width=2, height=1),
+        ObstacleBas(x=14, y=0, width=2, height=1),
+        ObstacleBas(x=20, y=0, width=2, height=1),
+        ObstacleBas(x=26, y=0, width=2, height=1),
     ]
 
     obstacles_haut: List[ObstacleHaut] = [
-        ObstacleHaut(x=10, y=2, width=3, height=1),  # filet bas
-        ObstacleHaut(x=16, y=2, width=2, height=1),  # branche
-        ObstacleHaut(x=22, y=2, width=3, height=1),  # filet bas
+        ObstacleHaut(x=10, y=2, width=3, height=1),
+        ObstacleHaut(x=16, y=2, width=2, height=1),
+        ObstacleHaut(x=22, y=2, width=3, height=1),
     ]
 
     sols: List[Sol] = [
-        Sol(x=0, y=0, width=LEVEL_WIDTH, height=1),  # sol principal
+        Sol(x=0, y=0, width=LEVEL_WIDTH, height=1),
     ]
 
     depart = Position(1, 0)
@@ -191,19 +176,15 @@ class Joueur:
 
     def update(self, dt: float, sols: List[Sol], niveau_largeur: int) -> None:
         """Met à jour la physique du joueur."""
-        # Gravité
         if not self.est_baisse:
             self.vy += GRAVITY
 
-        # Mouvement horizontal
         nouvelle_x = self.x + self.vx * dt
         if 0 <= nouvelle_x <= niveau_largeur - 1:
             self.x = nouvelle_x
 
-        # Mouvement vertical
         nouvelle_y = self.y + self.vy * dt
 
-        # Collision avec le sol
         on_sol = False
         for sol in sols:
             sol_rect = Rectangle(sol.x, sol.y, sol.width, sol.height)
@@ -220,23 +201,19 @@ class Joueur:
 
         self.y = nouvelle_y
 
-        # Limite droite du niveau
         if self.x >= niveau_largeur - 1:
             self.x = niveau_largeur - 1
 
-        # Timer attaque
         if self.en_attaque:
             self.temps_attaque -= dt
             if self.temps_attaque <= 0:
                 self.en_attaque = False
 
     def get_rect(self) -> Rectangle:
-        """Retourne le rectangle du joueur en pixels."""
-        return Rectangle(int(self.x) * TILE_SIZE, int(self.y) * TILE_SIZE, self.largeur, self.hauteur)
+        return Rectangle(int(self.x), int(self.y), self.largeur, self.hauteur)
 
     @staticmethod
     def _rects_overlap(r1: Rectangle, r2: Rectangle) -> bool:
-        """Vérifie si deux rectangles se chevauchent."""
         return not (r1.x + r1.width < r2.x or r2.x + r2.width < r1.x
                     or r1.y + r1.height < r2.y or r2.y + r2.height < r1.y)
 
@@ -256,7 +233,6 @@ class Crabe:
         self.patrol_end = data.patrol_end
 
     def update(self, dt: float) -> None:
-        """Met à jour la position du crabe."""
         if not self.alive:
             return
         self.x += self.direction * self.vitesse * dt
@@ -266,16 +242,19 @@ class Crabe:
             self.direction = -1
 
     def get_rect(self) -> Rectangle:
-        return Rectangle(int(self.x) * TILE_SIZE, int(self.y) * TILE_SIZE, self.width, self.height)
+        return Rectangle(int(self.x), int(self.y), self.width, self.height)
 
 
-class PrototypeJeu(arcade.Window):
-    """Fenêtre principale du prototype Crab Rush."""
+class FenetreNiveau(arcade.Window):
+    """Fenêtre du niveau 1."""
 
-    def __init__(self) -> None:
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, title="Crab Rush — Prototype",
-                         resizable=False)
-        self.clear_color = COULEUR_CIEL
+    def __init__(self, retour_callback=None):
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, title="Crab Rush — Niveau 1", clear_color=COULEUR_CIEL)
+        self.retour_callback = retour_callback
+        self.reinitialiser()
+
+    def reinitialiser(self):
+        """Réinitialise le niveau."""
         self.niveau = creer_niveau()
         self.joueur = Joueur(self.niveau["depart"].x, self.niveau["depart"].y)
         self.crabes = [Crabe(c) for c in self.niveau["crabes"]]
@@ -283,32 +262,31 @@ class PrototypeJeu(arcade.Window):
         self.obstacles_bas = self.niveau["obstacles_bas"]
         self.obstacles_haut = self.niveau["obstacles_haut"]
         self.camera_x = 0
-        self.touches: set = set()
+        self.touches = set()
         self.temps_ecoule = 0.0
         self.victoire = False
         self.defaite = False
         self.message = ""
 
     def on_key_press(self, touche: int, mod: int) -> None:
-        """Gère les pressions de touche."""
         self.touches.add(touche)
         if touche == arcade.key.R:
             self.reinitialiser()
         elif touche == arcade.key.ESCAPE:
-            self.close()
+            if self.retour_callback:
+                self.retour_callback()
+            else:
+                self.close()
 
     def on_key_release(self, touche: int, mod: int) -> None:
-        """Gère les relâchements de touche."""
         self.touches.discard(touche)
 
     def on_update(self, dt: float) -> None:
-        """Met à jour la logique du jeu."""
         if self.victoire or self.defaite:
             return
 
         self.temps_ecoule += dt
 
-        # Déplacement
         dx = 0
         if arcade.key.RIGHT in self.touches or arcade.key.D in self.touches:
             dx = 1
@@ -320,11 +298,9 @@ class PrototypeJeu(arcade.Window):
         )
         self.joueur.update(dt, self.sols, LEVEL_WIDTH)
 
-        # Mise à jour crabes
         for crabe in self.crabes:
             crabe.update(dt)
 
-        # Collision joueur-crabe
         joueur_rect = self.joueur.get_rect()
         for crabe in self.crabes:
             if crabe.alive:
@@ -333,36 +309,32 @@ class PrototypeJeu(arcade.Window):
                     self.message = "🦀 Pincé par un crabe ! Appuie sur R pour réessayer."
                     return
 
-        # Attaque joueur
         if self.joueur.en_attaque:
             for crabe in self.crabes:
                 if crabe.alive:
                     crabe_rect = crabe.get_rect()
                     attack_rect = Rectangle(
-                        int(self.joueur.x) * TILE_SIZE + (30 if self.joueur.facing_right else -30),
-                        int(self.joueur.y) * TILE_SIZE,
+                        int(self.joueur.x) + (30 if self.joueur.facing_right else -30),
+                        int(self.joueur.y),
                         30, 30
                     )
                     if self._rects_overlap(attack_rect, crabe_rect):
                         crabe.alive = False
 
-        # Collision avec obstacles bas (trous)
         for obs in self.obstacles_bas:
-            obs_rect = Rectangle(obs.x * TILE_SIZE, obs.y * TILE_SIZE, obs.width * TILE_SIZE, obs.height * TILE_SIZE)
+            obs_rect = Rectangle(obs.x, obs.y, obs.width, obs.height)
             if self._rects_overlap(joueur_rect, obs_rect):
                 self.defaite = True
-                self.message = "💀 Tu es tombé dans un trou ! Appuie sur R pour réessayer."
+                self.message = "💀 Tu es tombé dans un trou ! Appuie sur R."
                 return
 
-        # Collision avec obstacles haut (se baisser)
         for obs in self.obstacles_haut:
-            obs_rect = Rectangle(obs.x * TILE_SIZE, obs.y * TILE_SIZE, obs.width * TILE_SIZE, obs.height * TILE_SIZE)
+            obs_rect = Rectangle(obs.x, obs.y, obs.width, obs.height)
             if self._rects_overlap(joueur_rect, obs_rect):
                 self.defaite = True
                 self.message = "🚧 Obstacle ! Tu devais te baisser ! Appuie sur R."
                 return
 
-        # Victoire
         if self.joueur.x >= self.niveau["arrivee"].x:
             self.victoire = True
             self.message = (
@@ -371,12 +343,14 @@ class PrototypeJeu(arcade.Window):
                 f"Appuie sur R pour recommencer."
             )
 
-        # Camera suit le joueur
         self.camera_x = self.joueur.x - SCREEN_WIDTH / (2 * TILE_SIZE)
 
     def on_draw(self) -> None:
-        """Dessine le jeu."""
-        self.clear()
+        # Fond plein (remplace self.clear() qui ne semble pas fonctionner)
+        arcade.draw_lrbt_rectangle_filled(
+            0, self.width, 0, self.height,
+            self.clear_color if hasattr(self, 'clear_color') else (0, 128, 128)
+        )
         arcade.draw_text(
             f"❤️ 1  |  ⏱ {self.temps_ecoule:.1f}s",
             10, SCREEN_HEIGHT - 30,
@@ -393,75 +367,67 @@ class PrototypeJeu(arcade.Window):
             color=COULEUR_TEXT, font_size=12, anchor_x="center"
         )
 
-        # Dessiner le niveau avec camera
         self._dessiner_niveau()
 
-        # Messages de fin
         if self.victoire:
             self._dessiner_texte_centre(self.message, COULEUR_TEXT, 28)
         elif self.defaite:
             self._dessiner_texte_centre(self.message, arcade.color.RED, 28)
 
     def _dessiner_niveau(self) -> None:
-        """Dessine le niveau avec défilement."""
-        # Ciel (fond)
+        # Fond écran entier
         arcade.draw_lrbt_rectangle_filled(
-            0, SCREEN_WIDTH,
-            0, SCREEN_HEIGHT,
+            0, SCREEN_WIDTH, 0, SCREEN_HEIGHT,
             COULEUR_CIEL
         )
-
-        # Sols
         for sol in self.sols:
             px = sol.x * TILE_SIZE - self.camera_x * TILE_SIZE
             py = sol.y * TILE_SIZE
-            arcade.draw_lrbt_rectangle_filled(
-                px, px + sol.width * TILE_SIZE,
-                py, py + sol.height * TILE_SIZE,
-                COULEUR_SABLE
+            arcade.draw_lbwh_rectangle_filled(
+                px, py,
+                sol.width * TILE_SIZE,
+                sol.height * TILE_SIZE,
+                arcade.color.YELLOW
             )
 
-        # Trous (obstacles bas)
         for obs in self.obstacles_bas:
             px = obs.x * TILE_SIZE - self.camera_x * TILE_SIZE
             py = obs.y * TILE_SIZE
-            arcade.draw_lrbt_rectangle_filled(
-                px, px + obs.width * TILE_SIZE,
-                py, py + obs.height * TILE_SIZE,
+            arcade.draw_lbwh_rectangle_filled(
+                px, py,
+                obs.width * TILE_SIZE,
+                obs.height * TILE_SIZE,
                 COULEUR_TROU
             )
 
-        # Obstacles haut
         for obs in self.obstacles_haut:
             px = obs.x * TILE_SIZE - self.camera_x * TILE_SIZE
             py = obs.y * TILE_SIZE
-            arcade.draw_lrbt_rectangle_filled(
-                px, px + obs.width * TILE_SIZE,
-                py, py + obs.height * TILE_SIZE,
+            arcade.draw_lbwh_rectangle_filled(
+                px, py,
+                obs.width * TILE_SIZE,
+                obs.height * TILE_SIZE,
                 COULEUR_OBSTACLE_HAUT
             )
 
-        # Arrivée (eau)
         arr_x = self.niveau["arrivee"].x * TILE_SIZE - self.camera_x * TILE_SIZE
         arr_y = self.niveau["arrivee"].y * TILE_SIZE
-        arcade.draw_lrbt_rectangle_filled(
-            arr_x, arr_x + TILE_SIZE,
-            arr_y, arr_y + TILE_SIZE,
+        arcade.draw_lbwh_rectangle_filled(
+            arr_x, arr_y,
+            TILE_SIZE, TILE_SIZE,
             COULEUR_EAU
         )
         arcade.draw_text("🏊", arr_x + TILE_SIZE // 2, arr_y + TILE_SIZE // 2 + 5,
                          color=COULEUR_TEXT, font_size=20, anchor_x="center")
 
-        # Départ
         dep_x = self.niveau["depart"].x * TILE_SIZE - self.camera_x * TILE_SIZE
         dep_y = self.niveau["depart"].y * TILE_SIZE
-        arcade.draw_lrbt_rectangle_filled(
-            dep_x, dep_x + TILE_SIZE,
-            dep_y, dep_y + TILE_SIZE,
+        arcade.draw_lbwh_rectangle_filled(
+            dep_x, dep_y,
+            TILE_SIZE, TILE_SIZE,
             arcade.color.GREEN_YELLOW
         )
 
-        # Crabes
         for crabe in self.crabes:
             if crabe.alive:
                 px = crabe.x * TILE_SIZE - self.camera_x * TILE_SIZE
@@ -473,36 +439,39 @@ class PrototypeJeu(arcade.Window):
                 arcade.draw_text("🦀", px + crabe.width // 2, py + crabe.height // 2 + 5,
                                  color=COULEUR_TEXT, font_size=16, anchor_x="center")
 
-        # Joueur
         px_j = self.joueur.x * TILE_SIZE - self.camera_x * TILE_SIZE
         py_j = self.joueur.y * TILE_SIZE
-        arcade.draw_lrbt_rectangle_filled(
-            px_j, px_j + self.joueur.largeur,
-            py_j, py_j + self.joueur.hauteur,
+        arcade.draw_lbwh_rectangle_filled(
+            px_j, py_j,
+            self.joueur.largeur,
+            self.joueur.hauteur,
             COULEUR_JOUEUR
         )
-        # Icône joueur
         arcade.draw_text("🏊‍♂️", px_j + self.joueur.largeur // 2,
                          py_j + self.joueur.hauteur // 2 + 5,
                          color=COULEUR_TEXT, font_size=16, anchor_x="center")
 
-        # Indicateur d'attaque
         if self.joueur.en_attaque:
             attack_x = px_j + (self.joueur.largeur if self.joueur.facing_right else 0)
             attack_y = py_j
-            arcade.draw_lrbt_rectangle_filled(
-                attack_x, attack_x + 30,
-                attack_y, attack_y + 30,
+            arcade.draw_lbwh_rectangle_filled(
+                attack_x, attack_y,
+                30, 30,
                 arcade.color.YELLOW
             )
 
+        # DEBUG : rectangle fixe au centre de l'ecran
+        arcade.draw_lbwh_rectangle_filled(
+            SCREEN_WIDTH // 2 - 25, SCREEN_HEIGHT // 2 - 25,
+            50, 50,
+            arcade.color.RED
+        )
+
     def _rects_overlap(self, r1: Rectangle, r2: Rectangle) -> bool:
-        """Vérifie si deux rectangles se chevauchent."""
         return not (r1.x + r1.width < r2.x or r2.x + r2.width < r1.x
                     or r1.y + r1.height < r2.y or r2.y + r2.height < r1.y)
 
     def _dessiner_texte_centre(self, texte: str, couleur, taille_font: int) -> None:
-        """Dessine un texte centré."""
         lignes = texte.split("\n")
         y = SCREEN_HEIGHT // 2
         for ligne in lignes:
@@ -512,27 +481,3 @@ class PrototypeJeu(arcade.Window):
                 color=couleur, font_size=taille_font, anchor_x="center"
             )
             y -= taille_font + 10
-
-    def reinitialiser(self) -> None:
-        """Réinitialise le jeu."""
-        self.niveau = creer_niveau()
-        self.joueur = Joueur(self.niveau["depart"].x, self.niveau["depart"].y)
-        self.crabes = [Crabe(c) for c in self.niveau["crabes"]]
-        self.sols = self.niveau["sols"]
-        self.obstacles_bas = self.niveau["obstacles_bas"]
-        self.obstacles_haut = self.niveau["obstacles_haut"]
-        self.camera_x = 0
-        self.temps_ecoule = 0.0
-        self.victoire = False
-        self.defaite = False
-        self.message = ""
-
-
-def main() -> None:
-    """Lance le prototype."""
-    jeu = PrototypeJeu()
-    jeu.run()
-
-
-if __name__ == "__main__":
-    main()
