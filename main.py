@@ -128,9 +128,9 @@ class FenetreJeu(arcade.Window):
             g = int(self.couleur_sable[1] * (1 - ratio) + self.couleur_bleu[1] * ratio)
             b = int(self.couleur_sable[2] * (1 - ratio) + self.couleur_bleu[2] * ratio)
 
-            arcade.draw_rectangle_filled(
-                self.width / 2, (y_bas + y_haut) / 2,
-                self.width, y_haut - y_bas,
+            arcade.draw_lrbt_rectangle_filled(
+                0, self.width,
+                y_bas, y_haut,
                 (r, g, b)
             )
 
