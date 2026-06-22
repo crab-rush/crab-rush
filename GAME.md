@@ -24,6 +24,12 @@ Jeu de plateforme 2D défilement latéral. Le joueur incarne un maître nageur q
 - **R** — Recommencer le niveau (après mort ou victoire)
 - **Échap** — Quitter / revenir au menu
 
+### Système de saut
+- Le joueur **saute** avec Espace / Z / Haut / W
+- La montée et la descente sont à la **même vitesse** (gravité constante)
+- Le saut est **court** — pas trop haut, pour garder le jeu rythmé
+- Le joueur peut sauter uniquement quand il est au sol
+
 ### Système de combat
 - Le joueur dispose d'une **attaque courte portée** (30px devant lui, dans la direction où il fait face)
 - L'attaque dure **0.3 secondes** et se recharge immédiatement
