@@ -140,9 +140,9 @@ class FenetreJeu(arcade.Window):
         y_bas = self.bouton_y - self.hauteur_bouton // 2
 
         # Rectangle simple
-        arcade.draw_rectangle_filled(
-            (x_gauche + self.bouton_x + self.largeur_bouton // 2) / 2, (y_bas + y_bas + self.hauteur_bouton) / 2,
-            self.largeur_bouton, self.hauteur_bouton,
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, x_gauche + self.largeur_bouton,
+            y_bas, y_bas + self.hauteur_bouton,
             self.couleur_bouton
         )
 
@@ -162,9 +162,9 @@ class FenetreJeu(arcade.Window):
         y_bas = self.param_y - self.hauteur_param // 2
 
         # Carré gris avec coins légèrement arrondis
-        arcade.draw_rectangle_filled(
-            (x_gauche + self.param_x + self.largeur_param // 2) / 2, (y_bas + y_bas + self.hauteur_param) / 2,
-            self.largeur_param, self.hauteur_param,
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, x_gauche + self.largeur_param,
+            y_bas, y_bas + self.hauteur_param,
             (100, 100, 100)
         )
 
@@ -234,9 +234,9 @@ class FenetreJeu(arcade.Window):
     def dessiner_jeu(self):
         """Dessine l'écran de jeu (vide pour l'instant)."""
         # Fond uni sombre
-        arcade.draw_rectangle_filled(
-            self.width / 2, self.height / 2,
-            self.width, self.height,
+        arcade.draw_lrbt_rectangle_filled(
+            0, self.width,
+            0, self.height,
             (50, 50, 50)
         )
 
@@ -261,9 +261,9 @@ class FenetreJeu(arcade.Window):
     def dessiner_parametres(self):
         """Dessine l'écran des paramètres."""
         # Fond uni sombre
-        arcade.draw_rectangle_filled(
-            self.width / 2, self.height / 2,
-            self.width, self.height,
+        arcade.draw_lrbt_rectangle_filled(
+            0, self.width,
+            0, self.height,
             (50, 50, 50)
         )
 
@@ -285,9 +285,9 @@ class FenetreJeu(arcade.Window):
         taille = self.retour_taille
 
         # Carré gris foncé
-        arcade.draw_rectangle_filled(
-            centre_x, centre_y,
-            taille, taille,
+        arcade.draw_lrbt_rectangle_filled(
+            centre_x - taille // 2, centre_x + taille // 2,
+            centre_y - taille // 2, centre_y + taille // 2,
             (60, 60, 60)
         )
 
@@ -314,17 +314,19 @@ class FenetreJeu(arcade.Window):
         )
 
         # Fond du slider
-        arcade.draw_rectangle_filled(
-            x_gauche + self.largeur_slider / 2, self.slider_musique_y,
-            self.largeur_slider, self.hauteur_slider,
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, x_gauche + self.largeur_slider,
+            self.slider_musique_y - self.hauteur_slider // 2,
+            self.slider_musique_y + self.hauteur_slider // 2,
             (60, 60, 60)
         )
 
         # Barre de progression
         remplissage = int(self.largeur_slider * self.volume_musique / 100)
-        arcade.draw_rectangle_filled(
-            x_gauche + remplissage / 2, self.slider_musique_y,
-            remplissage, self.hauteur_slider,
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, x_gauche + remplissage,
+            self.slider_musique_y - self.hauteur_slider // 2,
+            self.slider_musique_y + self.hauteur_slider // 2,
             (100, 150, 255)
         )
 
@@ -351,17 +353,19 @@ class FenetreJeu(arcade.Window):
         )
 
         # Fond du slider
-        arcade.draw_rectangle_filled(
-            x_gauche + self.largeur_slider / 2, self.slider_sons_y,
-            self.largeur_slider, self.hauteur_slider,
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, x_gauche + self.largeur_slider,
+            self.slider_sons_y - self.hauteur_slider // 2,
+            self.slider_sons_y + self.hauteur_slider // 2,
             (60, 60, 60)
         )
 
         # Barre de progression
         remplissage = int(self.largeur_slider * self.volume_sons / 100)
-        arcade.draw_rectangle_filled(
-            x_gauche + remplissage / 2, self.slider_sons_y,
-            remplissage, self.hauteur_slider,
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, x_gauche + remplissage,
+            self.slider_sons_y - self.hauteur_slider // 2,
+            self.slider_sons_y + self.hauteur_slider // 2,
             (100, 200, 100)
         )
 
@@ -379,9 +383,9 @@ class FenetreJeu(arcade.Window):
         y_bas = self.quitter_y - self.hauteur_quitter // 2
 
         # Rectangle rouge
-        arcade.draw_rectangle_filled(
-            (x_gauche + self.quitter_x + self.largeur_quitter // 2) / 2, (y_bas + y_bas + self.hauteur_quitter) / 2,
-            self.largeur_quitter, self.hauteur_quitter,
+        arcade.draw_lrbt_rectangle_filled(
+            x_gauche, x_gauche + self.largeur_quitter,
+            y_bas, y_bas + self.hauteur_quitter,
             (180, 50, 50)
         )
 
@@ -398,9 +402,9 @@ class FenetreJeu(arcade.Window):
     def dessiner_popup_confirmation(self):
         """Dessine le popup de confirmation de quitter."""
         # Fond sombre
-        arcade.draw_rectangle_filled(
-            self.width / 2, self.height / 2,
-            self.width, self.height,
+        arcade.draw_lrbt_rectangle_filled(
+            0, self.width,
+            0, self.height,
             (0, 0, 0)
         )
 
@@ -410,9 +414,9 @@ class FenetreJeu(arcade.Window):
         popup_largeur = 200
         popup_hauteur = 100
 
-        arcade.draw_rectangle_filled(
-            popup_x + popup_largeur / 2, popup_y + popup_hauteur / 2,
-            popup_largeur, popup_hauteur,
+        arcade.draw_lrbt_rectangle_filled(
+            popup_x, popup_x + popup_largeur,
+            popup_y, popup_y + popup_hauteur,
             (80, 80, 80)
         )
 
