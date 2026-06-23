@@ -23,9 +23,9 @@ from typing import List, Optional
 TILE_SIZE = 40
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
-GRAVITY = 0.5          # pixels/frame, tir vers le bas (vy diminue)
-JUMP_FORCE = 10        # pixels/frame, vers le haut (vy positif = monter)
-MOVE_SPEED = 24        # pixels/frame (x3 vitesse)
+GRAVITY = 1.5          # pixels/frame, tir vers le bas (vy diminue) - gravité augmentée
+JUMP_FORCE = 30        # pixels/frame, vers le haut (vy positif = monter) - saut plus haut
+MOVE_SPEED = 72        # pixels/frame (x3 vitesse)
 LEVEL_WIDTH = 30       # nombre de cases de large
 
 # Couleurs
