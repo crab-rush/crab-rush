@@ -26,7 +26,7 @@ SCREEN_HEIGHT = 600
 GRAVITY = 1.5          # pixels/frame, tir vers le bas (vy diminue) - gravité augmentée
 JUMP_FORCE = 30        # pixels/frame, vers le haut (vy positif = monter) - saut plus haut
 MOVE_SPEED = 72        # pixels/frame (x3 vitesse)
-LEVEL_WIDTH = 30       # nombre de cases de large
+LEVEL_WIDTH = 60       # nombre de cases de large (niveau long)
 
 # Couleurs
 COULEUR_CIEL = arcade.color.AQUA
@@ -98,42 +98,83 @@ class Sol:
 
 # ─── Configuration du niveau ──────────────────────────────────
 def creer_niveau() -> dict:
-    """Crée les données du niveau 1."""
+    """Crée les données du niveau 1 — version longue (60 tuiles)."""
     crabes: List[CrabeConfig] = [
+        # Zone 1 (tuiles 0-14) : introduction progressive
         CrabeConfig(x=6.0, y=1.0, width=30, height=30, vitesse=1.5,
               direction=1, patrol_start=5, patrol_end=9),
         CrabeConfig(x=12.0, y=1.0, width=30, height=30, vitesse=2.0,
               direction=1, patrol_start=10, patrol_end=15),
+
+        # Zone 2 (tuiles 15-29) : premiers trous et crabes rapides
         CrabeConfig(x=18.0, y=1.0, width=30, height=30, vitesse=1.8,
               direction=-1, patrol_start=16, patrol_end=21),
         CrabeConfig(x=24.0, y=1.0, width=30, height=30, vitesse=2.2,
               direction=1, patrol_start=22, patrol_end=27),
+
+        # Zone 3 (tuiles 30-44) : plateformes et obstacles haut
+        CrabeConfig(x=32.0, y=1.0, width=30, height=30, vitesse=2.0,
+              direction=-1, patrol_start=30, patrol_end=35),
+        CrabeConfig(x=38.0, y=1.0, width=30, height=30, vitesse=2.5,
+              direction=1, patrol_start=36, patrol_end=42),
+        CrabeConfig(x=44.0, y=1.0, width=30, height=30, vitesse=1.8,
+              direction=-1, patrol_start=42, patrol_end=47),
+
+        # Zone 4 (tuiles 45-59) : finale variée et challengeante
+        CrabeConfig(x=50.0, y=1.0, width=30, height=30, vitesse=2.5,
+              direction=1, patrol_start=48, patrol_end=54),
+        CrabeConfig(x=55.0, y=1.0, width=30, height=30, vitesse=2.8,
+              direction=-1, patrol_start=53, patrol_end=58),
     ]
 
     # Sols : segments continus avec des trous (gaps) entre eux
     sols: List[Sol] = [
-        Sol(x=0, y=0, width=4, height=1),   # sol 0-3 (y=0 à 40px)
-        Sol(x=6, y=0, width=2, height=1),   # sol 6-7
-        Sol(x=9, y=0, width=5, height=1),   # sol 9-13
-        Sol(x=15, y=0, width=5, height=1),  # sol 15-19
-        Sol(x=21, y=0, width=5, height=1),  # sol 21-25
-        Sol(x=27, y=0, width=3, height=1),  # sol 27-29
+        Sol(x=0, y=0, width=4, height=1),    # sol 0-3
+        Sol(x=6, y=0, width=2, height=1),    # sol 6-7
+        Sol(x=9, y=0, width=5, height=1),    # sol 9-13
+        Sol(x=15, y=0, width=5, height=1),   # sol 15-19
+        Sol(x=21, y=0, width=5, height=1),   # sol 21-25
+        Sol(x=27, y=0, width=3, height=1),   # sol 27-29
+        Sol(x=31, y=0, width=5, height=1),   # sol 31-35
+        Sol(x=37, y=0, width=5, height=1),   # sol 37-41
+        Sol(x=43, y=0, width=5, height=1),   # sol 43-47
+        Sol(x=48, y=0, width=1, height=1),   # sol 48 (petit îlot)
+        Sol(x=50, y=0, width=1, height=1),   # sol 50 (petit îlot)
+        Sol(x=54, y=0, width=1, height=1),   # sol 54 (petit îlot)
+        Sol(x=56, y=0, width=4, height=1),   # sol 56-59 (arrivée)
     ]
-    # Note : le sol va de y=0 à y=40px. Le joueur se pose SUR le sol (y=40px = tile 1)
 
-    # Trous : positions des gaps dans le sol (pour le dessin uniquement)
     obstacles_bas: List[ObstacleBas] = [
         ObstacleBas(x=4, y=0, width=2, height=1),   # trou entre sol 0-3 et 6-7
         ObstacleBas(x=8, y=0, width=1, height=1),   # trou entre sol 6-7 et 9-13
         ObstacleBas(x=14, y=0, width=1, height=1),  # trou entre sol 9-13 et 15-19
         ObstacleBas(x=20, y=0, width=1, height=1),  # trou entre sol 15-19 et 21-25
         ObstacleBas(x=26, y=0, width=1, height=1),  # trou entre sol 21-25 et 27-29
+        ObstacleBas(x=30, y=0, width=1, height=1),  # trou entre sol 27-29 et 31-35
+        ObstacleBas(x=36, y=0, width=1, height=1),  # trou entre sol 31-35 et 37-41
+        ObstacleBas(x=42, y=0, width=1, height=1),  # trou entre sol 37-41 et 43-47
+        # Zone 4 : obstacles variés et irréguliers
+        ObstacleBas(x=47, y=0, width=1, height=1),  # petit trou isolé
+        ObstacleBas(x=49, y=0, width=1, height=1),  # petit trou isolé
+        ObstacleBas(x=51, y=0, width=3, height=1),  # grand trou large
+        ObstacleBas(x=55, y=0, width=1, height=1),  # trou entre deux crabes
+        ObstacleBas(x=57, y=0, width=1, height=1),  # trou juste avant l'arrivée
     ]
 
     obstacles_haut: List[ObstacleHaut] = [
-        ObstacleHaut(x=10, y=4, width=3, height=1),  # filet bas (à hauteur de tête)
-        ObstacleHaut(x=16, y=4, width=2, height=1),  # branche (à hauteur de tête)
-        ObstacleHaut(x=22, y=4, width=3, height=1),  # filet bas (à hauteur de tête)
+        ObstacleHaut(x=10, y=4, width=3, height=1),  # filet bas
+        ObstacleHaut(x=16, y=4, width=2, height=1),  # branche
+        ObstacleHaut(x=22, y=4, width=3, height=1),  # filet bas
+        ObstacleHaut(x=28, y=4, width=2, height=1),  # branche
+        ObstacleHaut(x=34, y=4, width=3, height=1),  # filet bas
+        ObstacleHaut(x=40, y=4, width=2, height=1),  # branche
+        ObstacleHaut(x=46, y=4, width=3, height=1),  # filet bas
+        # Zone 4 : obstacles combinés et variés
+        ObstacleHaut(x=45, y=4, width=2, height=1),  # petit passage
+        ObstacleHaut(x=48, y=4, width=1, height=1),  # obstacle isolé
+        ObstacleHaut(x=50, y=4, width=2, height=1),  # passage étroit
+        ObstacleHaut(x=53, y=4, width=3, height=1),  # long obstacle
+        ObstacleHaut(x=56, y=4, width=1, height=1),  # dernier obstacle avant l'arrivée
     ]
 
     depart = Position(1, 0)
