@@ -24,7 +24,7 @@ TILE_SIZE = 40
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 GRAVITY = 2.0          # pixels/frame, gravité forte pour descente rapide
-JUMP_FORCE = 27        # pixels/frame, saut = 180px de hauteur
+JUMP_FORCE = 45        # pixels/frame, saut = 500px de hauteur
 MOVE_SPEED = 72        # pixels/frame (vitesse rapide)
 LEVEL_WIDTH = 30       # nombre de cases de large
 
