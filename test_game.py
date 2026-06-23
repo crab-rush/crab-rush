@@ -213,10 +213,11 @@ class Joueur:
         if 0 <= nouvelle_x <= niveau_largeur - 1:
             self.x = nouvelle_x
 
-        # Vérifier si le joueur est au sol (centre x au-dessus d'un segment)
+        # Vérifier si le joueur est au-dessus d'un segment de sol (horizontalement)
         centre_x_pixel = self.x * TILE_SIZE + self.largeur / 2
         on_sol = False
         sol_actif = None
+        sol_haut_pixel = 0
         for sol in sols:
             sol_gauche = sol.x * TILE_SIZE
             sol_droite = (sol.x + sol.width) * TILE_SIZE
@@ -227,16 +228,25 @@ class Joueur:
                 sol_haut_pixel = sol_haut
                 break
 
+        # Vérifier le contact vertical avec le sol
+        joueur_bas_pixel = self.y * TILE_SIZE
+
         if on_sol and sol_actif:
-            # Poser le joueur SUR le sol (pieds au niveau du haut du sol)
-            sol_haut_pixel = (sol_actif.y + sol_actif.height) * TILE_SIZE
-            self.y = sol_haut_pixel / TILE_SIZE  # pieds du joueur au niveau du sol
-            self.vy = 0
-            self.est_sol = True
-            self.est_saut = False
+            # Le joueur est au sol seulement s'il est EN CONTACT avec le sol :
+            # - Son bas est proche du haut du sol (tolérance 10px)
+            # - Il ne monte pas (vy <= 0)
+            if joueur_bas_pixel >= sol_haut_pixel - 10 and self.vy <= 0:
+                self.y = sol_haut_pixel / TILE_SIZE  # pieds sur le sol
+                self.vy = 0
+                self.est_sol = True
+                self.est_saut = False
+            else:
+                # Joueur au-dessus du sol mais pas en contact (en l'air)
+                self.est_sol = False
+                self.vy -= GRAVITY
         else:
+            # Pas de sol sous le joueur (trou ou bord)
             self.est_sol = False
-            # Gravité : tire vers le bas (vy diminue)
             self.vy -= GRAVITY
 
         # Mouvement vertical (convertir pixels en tiles)
