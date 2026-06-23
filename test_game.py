@@ -23,9 +23,9 @@ from typing import List, Optional
 TILE_SIZE = 40
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
-GRAVITY = 1.5          # pixels/frame, tir vers le bas (vy diminue) - gravité augmentée
-JUMP_FORCE = 30        # pixels/frame, vers le haut (vy positif = monter) - saut plus haut
-MOVE_SPEED = 72        # pixels/frame (x3 vitesse)
+GRAVITY = 3.0          # pixels/frame, gravité forte
+JUMP_FORCE = 150       # pixels/frame, saut ~3750px de hauteur
+MOVE_SPEED = 90        # pixels/frame (vitesse augmentée)
 LEVEL_WIDTH = 60       # nombre de cases de large (niveau long)
 
 # Couleurs
@@ -274,24 +274,23 @@ class Joueur:
 
         if on_sol and sol_actif:
             if joueur_bas_pixel < sol_haut_pixel:
-                # Joueur EN DESSOUS ou DANS le sol → le remonter dessus
+                # Joueur en dessous du sol → le poser dessus
                 self.y = sol_haut_pixel / TILE_SIZE
                 self.vy = 0
                 self.est_sol = True
                 self.est_saut = False
-            elif joueur_bas_pixel < sol_haut_pixel + 10:
-                # Joueur proche du sol (contact)
+            elif joueur_bas_pixel < sol_haut_pixel + 2:
+                # Joueur à <2px du sol → contact solide
                 if self.vy <= 0:
-                    # Ne monte pas → reste au sol
                     self.vy = 0
                     self.est_sol = True
                     self.est_saut = False
                 else:
-                    # Monte (saut) → en l'air
+                    # Monte → en l'air
                     self.est_sol = False
                     self.vy -= GRAVITY
             else:
-                # Trop loin du sol → en l'air
+                # Loin du sol → en l'air
                 self.est_sol = False
                 self.vy -= GRAVITY
         else:
@@ -494,8 +493,29 @@ class PrototypeJeu(arcade.Window):
 
         # Messages de fin
         if self.victoire:
-            self._dessiner_texte_centre(self.message, COULEUR_TEXT, 28)
+            # Fond semi-transparent
+            arcade.draw_lrbt_rectangle_filled(
+                0, SCREEN_WIDTH, 0, SCREEN_HEIGHT,
+                arcade.color.BLACK_ALPHA_50
+            )
+            # Texte victoire en gros
+            arcade.draw_text(
+                "🏆 VOUS AVEZ GAGNÉ ! 🏆",
+                SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 30,
+                color=arcade.color.YELLOW, font_size=48, anchor_x="center",
+                bold=True
+            )
+            arcade.draw_text(
+                "Appuie sur R pour rejouer",
+                SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40,
+                color=COULEUR_TEXT, font_size=20, anchor_x="center"
+            )
         elif self.defaite:
+            # Fond semi-transparent
+            arcade.draw_lrbt_rectangle_filled(
+                0, SCREEN_WIDTH, 0, SCREEN_HEIGHT,
+                arcade.color.BLACK_ALPHA_50
+            )
             self._dessiner_texte_centre(self.message, arcade.color.RED, 28)
 
     def _dessiner_niveau(self) -> None:
