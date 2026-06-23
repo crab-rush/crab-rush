@@ -25,7 +25,7 @@ SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 GRAVITY = 0.5          # pixels/frame, tir vers le bas (vy diminue)
 JUMP_FORCE = 10        # pixels/frame, vers le haut (vy positif = monter)
-MOVE_SPEED = 8         # pixels/frame (vitesse augmentée)
+MOVE_SPEED = 24        # pixels/frame (x3 vitesse)
 LEVEL_WIDTH = 30       # nombre de cases de large
 
 # Couleurs
@@ -313,9 +313,9 @@ class Crabe:
             self.direction = -1
 
     def get_rect(self) -> Rectangle:
-        # Hitbox plus petite que le dessin (cercle visuel vs rectangle)
-        # Le crabe est dessiné en cercle de rayon width/2, donc hitbox ~60% de la taille
-        marge = int(self.width * 0.2)  # 20% de marge de chaque côté
+        # Hitbox très réduite (cercle visuel vs rectangle)
+        # Le crabe est dessiné en cercle, hitbox ~30% de la taille
+        marge = int(self.width * 0.35)  # 35% de marge de chaque côté
         return Rectangle(
             int(self.x) * TILE_SIZE + marge,
             int(self.y) * TILE_SIZE + marge,
