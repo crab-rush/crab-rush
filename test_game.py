@@ -23,9 +23,9 @@ from typing import List, Optional
 TILE_SIZE = 40
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
-GRAVITY = 1.5          # pixels/frame, tir vers le bas (vy diminue) - gravité augmentée
-JUMP_FORCE = 30        # pixels/frame, vers le haut (vy positif = monter) - saut plus haut
-MOVE_SPEED = 72        # pixels/frame (x3 vitesse)
+GRAVITY = 2.0          # pixels/frame, gravité forte pour descente rapide
+JUMP_FORCE = 45        # pixels/frame, saut haut (monte ~500px)
+MOVE_SPEED = 72        # pixels/frame (vitesse rapide)
 LEVEL_WIDTH = 30       # nombre de cases de large
 
 # Couleurs
@@ -233,24 +233,23 @@ class Joueur:
 
         if on_sol and sol_actif:
             if joueur_bas_pixel < sol_haut_pixel:
-                # Joueur EN DESSOUS ou DANS le sol → le remonter dessus
+                # Joueur en dessous du sol → le poser dessus
                 self.y = sol_haut_pixel / TILE_SIZE
                 self.vy = 0
                 self.est_sol = True
                 self.est_saut = False
-            elif joueur_bas_pixel < sol_haut_pixel + 10:
-                # Joueur proche du sol (contact)
+            elif joueur_bas_pixel < sol_haut_pixel + 2:
+                # Joueur à <2px du sol → contact solide
                 if self.vy <= 0:
-                    # Ne monte pas → reste au sol
                     self.vy = 0
                     self.est_sol = True
                     self.est_saut = False
                 else:
-                    # Monte (saut) → en l'air
+                    # Monte → en l'air
                     self.est_sol = False
                     self.vy -= GRAVITY
             else:
-                # Trop loin du sol → en l'air
+                # Loin du sol → en l'air
                 self.est_sol = False
                 self.vy -= GRAVITY
         else:
