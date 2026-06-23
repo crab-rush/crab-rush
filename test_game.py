@@ -232,16 +232,25 @@ class Joueur:
         joueur_bas_pixel = self.y * TILE_SIZE
 
         if on_sol and sol_actif:
-            # Le joueur est au sol seulement s'il est EN CONTACT avec le sol :
-            # - Son bas est proche du haut du sol (tolérance 10px)
-            # - Il ne monte pas (vy <= 0)
-            if joueur_bas_pixel >= sol_haut_pixel - 10 and self.vy <= 0:
-                self.y = sol_haut_pixel / TILE_SIZE  # pieds sur le sol
+            if joueur_bas_pixel < sol_haut_pixel:
+                # Joueur EN DESSOUS ou DANS le sol → le remonter dessus
+                self.y = sol_haut_pixel / TILE_SIZE
                 self.vy = 0
                 self.est_sol = True
                 self.est_saut = False
+            elif joueur_bas_pixel < sol_haut_pixel + 10:
+                # Joueur proche du sol (contact)
+                if self.vy <= 0:
+                    # Ne monte pas → reste au sol
+                    self.vy = 0
+                    self.est_sol = True
+                    self.est_saut = False
+                else:
+                    # Monte (saut) → en l'air
+                    self.est_sol = False
+                    self.vy -= GRAVITY
             else:
-                # Joueur au-dessus du sol mais pas en contact (en l'air)
+                # Trop loin du sol → en l'air
                 self.est_sol = False
                 self.vy -= GRAVITY
         else:
