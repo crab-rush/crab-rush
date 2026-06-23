@@ -452,8 +452,29 @@ class PrototypeJeu(arcade.Window):
 
         # Messages de fin
         if self.victoire:
-            self._dessiner_texte_centre(self.message, COULEUR_TEXT, 28)
+            # Fond semi-transparent
+            arcade.draw_lrbt_rectangle_filled(
+                0, SCREEN_WIDTH, 0, SCREEN_HEIGHT,
+                arcade.color.BLACK_ALPHA_50
+            )
+            # Texte victoire en gros
+            arcade.draw_text(
+                "🏆 VOUS AVEZ GAGNÉ ! 🏆",
+                SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 30,
+                color=arcade.color.YELLOW, font_size=48, anchor_x="center",
+                bold=True
+            )
+            arcade.draw_text(
+                "Appuie sur R pour rejouer",
+                SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40,
+                color=COULEUR_TEXT, font_size=20, anchor_x="center"
+            )
         elif self.defaite:
+            # Fond semi-transparent
+            arcade.draw_lrbt_rectangle_filled(
+                0, SCREEN_WIDTH, 0, SCREEN_HEIGHT,
+                arcade.color.BLACK_ALPHA_50
+            )
             self._dessiner_texte_centre(self.message, arcade.color.RED, 28)
 
     def _dessiner_niveau(self) -> None:
