@@ -58,6 +58,7 @@ Jeu de plateforme 2D défilement latéral. Le joueur incarne un maître nageur q
 ## Fonctionnalités implémentées
 
 - [x] Écran de titre avec bouton "Jouer"
+- [x] Écran de titre avec fond d'image jungle (`background_jungle.png`)
 - [x] Écran de paramètres (sliders musique/effets sonores, bouton quitter)
 - [x] Menu → transition vers le niveau 1
 - [x] Déplacement du joueur (gauche / droite)
@@ -71,14 +72,13 @@ Jeu de plateforme 2D défilement latéral. Le joueur incarne un maître nageur q
 - [x] Timer
 - [x] Victoire et défaite
 - [x] Écran de retour au menu (flèche en haut à gauche)
-- [ ] Système de pièces 🪙 (à implémenter)
+- [x] Écran de jeu avec fond d'image jungle défilant avec la caméra
+- [x] Système de pièces 🪙 (2 pièces dans le niveau 1, collecte automatique, compteur persistant)
 - [ ] Système de revivre (à implémenter)
 - [ ] Boutique d'améliorations (à implémenter)
 - [ ] Écran de sélection de niveaux (à implémenter)
 
 ## Fonctionnalités planifiées
-
-- 🪙 Pièces à collecter (Session 2)
 - 🏪 Boutique d'améliorations entre les niveaux (Session 2)
 - 🔄 Système de revivre — payer 3 pièces pour continuer (Session 3)
 - 🗺️ Écran de sélection de niveaux (Session 4)
@@ -93,4 +93,6 @@ Jeu de plateforme 2D défilement latéral. Le joueur incarne un maître nageur q
 - `main.py` contient l'écran de titre et l'écran de paramètres. Le bouton "Jouer" lance le jeu via `game.py`.
 - `niveau.py` est une version antérieure du gameplay, conservée à titre de référence.
 - Les noms de variables et fonctions sont en français pour les débutants.
-- Les couleurs sont utilisées à la place des sprites pour l'instant (pas d'assets graphiques).
+- `main.py` contient l'écran de titre et l'écran de paramètres. Le bouton "Jouer" lance le jeu via `game.py`.
+- `game.py` contient le gameplay complet du niveau 1 (déplacement, saut, combat, obstacles, caméra, victoire/défaite).
+- Le fond d'écran `assets/background_jungle.png` est utilisé sur le menu et l'écran de jeu (défilement avec la caméra).

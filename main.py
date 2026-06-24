@@ -6,11 +6,11 @@ Jeu éducatif de programmation pour jeunes apprenants.
 import arcade
 
 
-class FenetreJeu(arcade.Window):
+class FenetreJeu(arcade.View):
     """Fenêtre principale du jeu Crab Rush."""
 
     def __init__(self):
-        super().__init__(800, 600, "Crab Rush")
+        super().__init__()
 
         # Couleurs
         self.couleur_bleu = (44, 95, 108)      # Océan
@@ -68,6 +68,21 @@ class FenetreJeu(arcade.Window):
         # Titre
         self.titre_texte = "🦀 Crab Rush"
 
+        # Chargement du fond d'écran
+        try:
+            self.fond_ecran = arcade.Sprite("assets/background_jungle.png")
+            # Ajuster la taille pour couvrir l'écran
+            ratio = max(self.width / self.fond_ecran.texture.width, self.height / self.fond_ecran.texture.height)
+            self.fond_ecran.scale = ratio
+            self.fond_ecran.center_x = self.width // 2
+            self.fond_ecran.center_y = self.height // 2
+            self.fond_ecran_list = arcade.SpriteList()
+            self.fond_ecran_list.append(self.fond_ecran)
+        except FileNotFoundError:
+            arcade.print_error("Fond d'écran introuvable : assets/background_jungle.png")
+            self.fond_ecran = None
+            self.fond_ecran_list = None
+
     def on_update(self, delta_time):
         """Gère le timer du popup."""
         if self.popup_affiche:
@@ -90,10 +105,11 @@ class FenetreJeu(arcade.Window):
             self.dessiner_flache_retour()
 
     def dessiner_menu(self):
-        """Dessine l'écran de titre avec dégradé, titre et bouton."""
+        """Dessine l'écran de titre avec fond d'image, titre et bouton."""
 
-        # Dégradé bleu → sable
-        self.dessiner_degrade()
+        # Fond d'écran
+        if self.fond_ecran_list:
+            self.fond_ecran_list.draw()
 
         # Titre
         arcade.draw_text(
@@ -439,11 +455,8 @@ class FenetreJeu(arcade.Window):
             # Vérifie si le clic est dans le bouton Jouer
             if (self.bouton_x - self.largeur_bouton // 2 <= x <= self.bouton_x + self.largeur_bouton // 2 and
                     self.bouton_y - self.hauteur_bouton // 2 <= y <= self.bouton_y + self.hauteur_bouton // 2):
-                # Fermer le menu et lancer le jeu
-                self.close()
-                from game import PrototypeJeu
-                jeu = PrototypeJeu()
-                jeu.run()
+                # Fermer la fenêtre
+                self.window.close()
             # Vérifie si le clic est dans le bouton Paramètres
             elif (self.param_x - self.largeur_param // 2 <= x <= self.param_x + self.largeur_param // 2 and
                   self.param_y - self.hauteur_param // 2 <= y <= self.param_y + self.hauteur_param // 2):
@@ -497,7 +510,10 @@ class FenetreJeu(arcade.Window):
 
 def main():
     """Fonction principale — lance le jeu."""
-    arcade.run(FenetreJeu())
+    fenetre = arcade.Window(800, 600, "Crab Rush")
+    jeu = FenetreJeu()
+    fenetre.show_view(jeu)
+    arcade.run()
 
 
 if __name__ == "__main__":

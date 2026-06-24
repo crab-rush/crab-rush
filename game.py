@@ -378,6 +378,19 @@ class PrototypeJeu(arcade.Window):
         self.obstacles_haut = self.niveau["obstacles_haut"]
         self.camera_x = 0
         self.touches: set = set()
+
+        # Chargement du fond d'écran
+        try:
+            self.fond_ecran = arcade.Sprite("assets/background_jungle.png")
+            # Ajuster la taille pour couvrir l'écran
+            ratio = max(self.width / self.fond_ecran.texture.width, self.height / self.fond_ecran.texture.height)
+            self.fond_ecran.scale = ratio
+            self.fond_ecran_list = arcade.SpriteList()
+            self.fond_ecran_list.append(self.fond_ecran)
+        except FileNotFoundError:
+            arcade.print_error("Fond d'écran introuvable : assets/background_jungle.png")
+            self.fond_ecran = None
+            self.fond_ecran_list = None
         self.temps_ecoule = 0.0
         self.victoire = False
         self.defaite = False
@@ -471,6 +484,17 @@ class PrototypeJeu(arcade.Window):
     def on_draw(self) -> None:
         """Dessine le jeu."""
         self.clear()
+
+        # Fond d'écran défilant
+        if self.fond_ecran:
+            # Décalage horizontal basé sur la caméra
+            decalage_x = int(self.camera_x * TILE_SIZE)
+            # On dessine l'image plusieurs fois pour couvrir tout le niveau
+            for i in range(-1, 4):
+                x = i * self.fond_ecran.texture.width - decalage_x % self.fond_ecran.texture.width
+                self.fond_ecran.set_position(x, 0)
+            self.fond_ecran_list.draw()
+
         arcade.draw_text(
             f"❤️ 1  |  ⏱ {self.temps_ecoule:.1f}s",
             10, SCREEN_HEIGHT - 30,
@@ -588,6 +612,18 @@ class PrototypeJeu(arcade.Window):
                 arcade.draw_text("🦀", px + crabe.width // 2, py + crabe.height // 2 + 5,
                                  color=COULEUR_TEXT, font_size=16, anchor_x="center")
 
+        # Pièces
+        for piece in self.niveau["pieces"]:
+            if not piece.collectee:
+                px = piece.x * TILE_SIZE - self.camera_x * TILE_SIZE
+                py = piece.y * TILE_SIZE
+                arcade.draw_circle_filled(
+                    px + 5, py + 5, 5,
+                    arcade.color.GOLD
+                )
+                arcade.draw_text("🪙", px + 5, py + 5 + 5,
+                                 color=COULEUR_TEXT, font_size=14, anchor_x="center")
+
         # Joueur
         px_j = self.joueur.x * TILE_SIZE - self.camera_x * TILE_SIZE
         py_j = self.joueur.y * TILE_SIZE
@@ -629,7 +665,8 @@ class PrototypeJeu(arcade.Window):
             y -= taille_font + 10
 
     def reinitialiser(self) -> None:
-        """Réinitialise le jeu."""
+        """Réinitialise le jeu en gardant les pièces collectées."""
+        pieces_avant = self.pieces_collectees
         self.niveau = creer_niveau()
         self.joueur = Joueur(self.niveau["depart"].x, self.niveau["depart"].y)
         self.crabes = [Crabe(c) for c in self.niveau["crabes"]]
@@ -641,6 +678,11 @@ class PrototypeJeu(arcade.Window):
         self.victoire = False
         self.defaite = False
         self.message = ""
+        # Garder les pièces collectées (monnaie persistante)
+        self.pieces_collectees = pieces_avant
+        for i, piece in enumerate(self.niveau["pieces"]):
+            if i < pieces_avant:
+                piece.collectee = True
 
 
 def main() -> None:
