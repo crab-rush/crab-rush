@@ -14,9 +14,8 @@ Niveau 1 — Première Sauveterie (Facile)
 """
 
 import arcade
-import math
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
 
 
 # ─── Constantes ───────────────────────────────────────────────

@@ -172,18 +172,10 @@ class FenetreJeu(arcade.Window):
         centre_x = self.param_x
         centre_y = self.param_y
         rayon_corps = 10
-        rayon_dent = 4
         longueur_dent = 8
-        nb_dents = 8
 
         # Corps central de l'engrenage
         arcade.draw_circle_filled(centre_x, centre_y, rayon_corps, arcade.color.WHITE)
-
-        # 8 dents réparties autour
-        for i in range(nb_dents):
-            angle = (2 * 3.14159 * i) / nb_dents
-            x_dent = centre_x + (rayon_corps + longueur_dent / 2) * 0.7 * (angle if i % 2 == 0 else 0)
-            y_dent = centre_y + (rayon_corps + longueur_dent / 2) * 0.7 * (angle if i % 2 == 0 else 0)
 
         # Dents horizontales et verticales (ronds)
         # Haut
@@ -505,8 +497,7 @@ class FenetreJeu(arcade.Window):
 
 def main():
     """Fonction principale — lance le jeu."""
-    fenetre = FenetreJeu()
-    arcade.run()
+    arcade.run(FenetreJeu())
 
 
 if __name__ == "__main__":

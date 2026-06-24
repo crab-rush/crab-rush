@@ -189,7 +189,6 @@ class Joueur:
 
         nouvelle_y = self.y + self.vy * dt
 
-        on_sol = False
         for sol in sols:
             sol_rect = Rectangle(sol.x, sol.y, sol.width, sol.height)
             player_rect = Rectangle(
@@ -200,7 +199,6 @@ class Joueur:
                 if self.vy < 0:
                     nouvelle_y = sol.y + sol.height
                     self.vy = 0
-                    on_sol = True
                     self.est_saut = False
 
         self.y = nouvelle_y
