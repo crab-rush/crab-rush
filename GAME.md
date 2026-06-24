@@ -18,14 +18,14 @@ Jeu de plateforme 2D défilement latéral. Le joueur incarne un maître nageur q
 
 ### Contrôles
 - **Flèches / ZQSD** — Se déplacer (gauche / droite)
-- **Espace / Z / Haut / W** — Sauter
-- **Bas / S** — Se baisser ( Éviter les obstacles hauts)
-- **Espace** — Frapper les crabes (attaque courte portée devant le joueur)
+- **Z / Haut / W** — Sauter (uniquement quand au sol)
+- **Bas / S** — Se baisser (éviter les obstacles hauts)
+- **Espace** — Frapper les crabes (attaque courte portée devant le joueur, dure 0.3s)
 - **R** — Recommencer le niveau (après mort ou victoire)
-- **Échap** — Quitter / revenir au menu
+- **Échap** — Revenir au menu (depuis le jeu ou les paramètres)
 
 ### Système de saut
-- Le joueur **saute** avec Espace / Z / Haut / W
+- Le joueur **saute** avec Z / Haut / W
 - La montée et la descente sont à la **même vitesse** (gravité constante)
 - Le saut est **court** — pas trop haut, pour garder le jeu rythmé
 - Le joueur peut sauter uniquement quand il est au sol
@@ -39,7 +39,7 @@ Jeu de plateforme 2D défilement latéral. Le joueur incarne un maître nageur q
 ### Système de vies et survie
 - Le joueur commence chaque niveau avec **1 vie**
 - Toucher un crabe ou un obstacle = **mort instantanée**
-- À la mort : écran de défaite avec option de recommencer ou de revivre
+- À la mort : écran de défaite avec option de recommencer (touche R)
 
 ### Système de pièces
 - Des pièces 🪙 sont dispersées dans le niveau
@@ -48,10 +48,8 @@ Jeu de plateforme 2D défilement latéral. Le joueur incarne un maître nageur q
 - Les pièces sont conservées entre les niveaux (monnaie persistante)
 
 ### Système de revivre
-- Après la mort, le joueur peut choisir de **payer des pièces pour revivre**
-- Le coût de revivre est **3 pièces**
-- Si le joueur n'a pas assez de pièces, il doit recommencer le niveau
-- Revivre remet le joueur à sa position de mort (pas au début du niveau)
+- **Non implémenté.** Sera ajouté ultérieurement.
+- Prévu : le joueur pourra payer des pièces pour revivre à sa position de mort.
 
 ### Niveaux et difficulté
 - Le niveau 1 est un parcours simple avec 4 crabes et 5 trous
@@ -60,17 +58,19 @@ Jeu de plateforme 2D défilement latéral. Le joueur incarne un maître nageur q
 ## Fonctionnalités implémentées
 
 - [x] Écran de titre avec bouton "Jouer"
+- [x] Écran de paramètres (sliders musique/effets sonores, bouton quitter)
 - [x] Menu → transition vers le niveau 1
 - [x] Déplacement du joueur (gauche / droite)
 - [x] Sauter
 - [x] Se baisser
 - [x] Frapper les crabes
 - [x] Crabes ennemis avec patrouille
-- [x] Trous (obstacles bas à sauter)
+- [x] Trous (gaps dans le sol — le joueur tombe par gravité)
 - [x] Obstacles hauts (à éviter en se baissant)
 - [x] Système de mort et recommencement
 - [x] Timer
 - [x] Victoire et défaite
+- [x] Écran de retour au menu (flèche en haut à gauche)
 - [ ] Système de pièces 🪙 (à implémenter)
 - [ ] Système de revivre (à implémenter)
 - [ ] Boutique d'améliorations (à implémenter)
@@ -89,7 +89,8 @@ Jeu de plateforme 2D défilement latéral. Le joueur incarne un maître nageur q
 
 ## Notes de développement
 
-- Le prototype `test_game.py` contient déjà la base du gameplay (déplacement, saut, combat, obstacles, caméra). Il servira de base pour l'intégration.
-- `main.py` contient l'écran de titre. Il faudra relier le bouton "Jouer" au prototype.
+- `game.py` contient le gameplay complet du niveau 1 (déplacement, saut, combat, obstacles, caméra, victoire/défaite).
+- `main.py` contient l'écran de titre et l'écran de paramètres. Le bouton "Jouer" lance le jeu via `game.py`.
+- `niveau.py` est une version antérieure du gameplay, conservée à titre de référence.
 - Les noms de variables et fonctions sont en français pour les débutants.
 - Les couleurs sont utilisées à la place des sprites pour l'instant (pas d'assets graphiques).

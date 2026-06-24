@@ -1,6 +1,10 @@
 """
 Crab Rush — Niveau 1 (Prototype intégré)
 
+⚠️ CE FICHIER N'EST PAS UTILISÉ.
+Il s'agit d'une version antérieure du gameplay, conservée à titre de référence.
+Le fichier actif est `game.py`, importé par `main.py`.
+
 Jeu de plateforme 2D défilement latéral.
 """
 
@@ -226,7 +230,6 @@ class Joueur:
 
         nouvelle_y = self.y + self.vy * dt
 
-        on_sol = False
         for sol in sols:
             sol_rect = Rectangle(sol.x, sol.y, sol.width, sol.height)
             player_rect = Rectangle(
@@ -237,7 +240,6 @@ class Joueur:
                 if self.vy < 0:
                     nouvelle_y = sol.y + sol.height
                     self.vy = 0
-                    on_sol = True
                     self.est_saut = False
 
         self.y = nouvelle_y

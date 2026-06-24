@@ -40,13 +40,17 @@ python main.py
 
 ## 🎯 Objectifs du jeu
 
-_Cette section sera complétée par l'équipe. Elle décrit le but du jeu, les règles, et les mécaniques principales._
+Crab Rush est un jeu de plateforme 2D à défilement latéral. Le joueur incarne un maître nageur qui doit traverser une plage pour sauver une personne qui se noie. Il affronte des crabes ennemis, saute par-dessus des trous, et évite des obstacles en se baissant.
+
+Pour les règles détaillées, mécaniques et contrôles, consultez [`GAME.md`](GAME.md).
 
 ## 📁 Structure du projet
 
 ```
 crab-rush/
-├── main.py          # Point d'entrée du jeu
+├── main.py          # Écran de titre + paramètres, point d'entrée du jeu
+├── game.py          # Gameplay du niveau 1 (physique, crabes, obstacles, caméra)
+├── niveau.py        # Version antérieure du gameplay (référence)
 ├── assets/          # Sprites, sons, images
 ├── tests/           # Tests unitaires
 ├── requirements.txt # Dépendances Python
