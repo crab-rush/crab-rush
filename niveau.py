@@ -1,6 +1,10 @@
 """
 Crab Rush — Niveau 1 (Prototype intégré)
 
+⚠️ CE FICHIER N'EST PAS UTILISÉ.
+Il s'agit d'une version antérieure du gameplay, conservée à titre de référence.
+Le fichier actif est `game.py`, importé par `main.py`.
+
 Jeu de plateforme 2D défilement latéral.
 """
 
