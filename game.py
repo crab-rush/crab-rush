@@ -4,7 +4,7 @@ Crab Rush — Prototype test (Niveau 1)
 Jeu de plateforme 2D défilement latéral (gauche → droite).
 - Le maître nageur traverse la plage pour sauver une personne qui se noie
 - Flèches / ZQSD : déplacer
-- Espace / Z : sauter
+- Z / Haut / W : sauter
 - Bas / S : se baisser
 - Espace : frapper les crabes
 - R : recommencer

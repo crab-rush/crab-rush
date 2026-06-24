@@ -449,7 +449,7 @@ class FenetreJeu(arcade.Window):
                     self.bouton_y - self.hauteur_bouton // 2 <= y <= self.bouton_y + self.hauteur_bouton // 2):
                 # Fermer le menu et lancer le jeu
                 self.close()
-                from test_game import PrototypeJeu
+                from game import PrototypeJeu
                 jeu = PrototypeJeu()
                 jeu.run()
             # Vérifie si le clic est dans le bouton Paramètres
