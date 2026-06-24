@@ -73,14 +73,12 @@ Jeu de plateforme 2D défilement latéral. Le joueur incarne un maître nageur q
 - [x] Victoire et défaite
 - [x] Écran de retour au menu (flèche en haut à gauche)
 - [x] Écran de jeu avec fond d'image jungle défilant avec la caméra
-- [ ] Système de pièces 🪙 (à implémenter)
+- [x] Système de pièces 🪙 (2 pièces dans le niveau 1, collecte automatique, compteur persistant)
 - [ ] Système de revivre (à implémenter)
 - [ ] Boutique d'améliorations (à implémenter)
 - [ ] Écran de sélection de niveaux (à implémenter)
 
 ## Fonctionnalités planifiées
-
-- 🪙 Pièces à collecter (Session 2)
 - 🏪 Boutique d'améliorations entre les niveaux (Session 2)
 - 🔄 Système de revivre — payer 3 pièces pour continuer (Session 3)
 - 🗺️ Écran de sélection de niveaux (Session 4)
