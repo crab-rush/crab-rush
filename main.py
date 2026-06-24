@@ -510,10 +510,8 @@ class FenetreJeu(arcade.View):
 
 def main():
     """Fonction principale — lance le jeu."""
-    fenetre = arcade.Window(800, 600, "Crab Rush")
-    jeu = FenetreJeu()
-    fenetre.show_view(jeu)
-    arcade.run()
+    fenetre = FenetreJeu()
+    fenetre.run()
 
 
 if __name__ == "__main__":

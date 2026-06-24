@@ -22,9 +22,9 @@ from typing import List
 TILE_SIZE = 40
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
-GRAVITY = 3.0          # pixels/frame, gravité forte
-JUMP_FORCE = 150       # pixels/frame, saut ~3750px de hauteur
-MOVE_SPEED = 90        # pixels/frame (vitesse augmentée)
+GRAVITY = 5.0          # pixels/frame, gravité normale
+JUMP_FORCE = 100       # pixels/frame, saut ~10 tuiles (500px)
+MOVE_SPEED = 50         # pixels/frame, vitesse maximale
 LEVEL_WIDTH = 60       # nombre de cases de large (niveau long)
 
 # Couleurs
