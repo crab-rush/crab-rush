@@ -68,6 +68,13 @@ class FenetreJeu(arcade.Window):
         # Titre
         self.titre_texte = "🦀 Crab Rush"
 
+        # Chargement du fond d'écran
+        try:
+            self.fond_ecran = arcade.load_texture("assets/background_jungle.png")
+        except FileNotFoundError:
+            arcade.print_error("Fond d'écran introuvable : assets/background_jungle.png")
+            self.fond_ecran = None
+
     def on_update(self, delta_time):
         """Gère le timer du popup."""
         if self.popup_affiche:
@@ -90,10 +97,14 @@ class FenetreJeu(arcade.Window):
             self.dessiner_flache_retour()
 
     def dessiner_menu(self):
-        """Dessine l'écran de titre avec dégradé, titre et bouton."""
+        """Dessine l'écran de titre avec fond d'image, titre et bouton."""
 
-        # Dégradé bleu → sable
-        self.dessiner_degrade()
+        # Fond d'écran
+        if self.fond_ecran:
+            self.fond_ecran.draw_point(
+                self.width // 2, self.height // 2,
+                scaled=(self.width / self.fond_ecran.width, self.height / self.fond_ecran.height)
+            )
 
         # Titre
         arcade.draw_text(

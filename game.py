@@ -337,6 +337,13 @@ class PrototypeJeu(arcade.Window):
         self.obstacles_haut = self.niveau["obstacles_haut"]
         self.camera_x = 0
         self.touches: set = set()
+
+        # Chargement du fond d'écran
+        try:
+            self.fond_ecran = arcade.load_texture("assets/background_jungle.png")
+        except FileNotFoundError:
+            arcade.print_error("Fond d'écran introuvable : assets/background_jungle.png")
+            self.fond_ecran = None
         self.temps_ecoule = 0.0
         self.victoire = False
         self.defaite = False
@@ -430,6 +437,19 @@ class PrototypeJeu(arcade.Window):
     def on_draw(self) -> None:
         """Dessine le jeu."""
         self.clear()
+
+        # Fond d'écran défilant
+        if self.fond_ecran:
+            # Décalage horizontal basé sur la caméra
+            decalage_x = int(self.camera_x * TILE_SIZE)
+            # On dessine l'image deux fois pour créer un effet de boucle
+            for i in range(-1, 3):
+                x = i * self.fond_ecran.width - decalage_x % self.fond_ecran.width
+                self.fond_ecran.draw_point(
+                    x + self.fond_ecran.width // 2, self.height // 2,
+                    scaled=(self.width / self.fond_ecran.width, self.height / self.fond_ecran.height)
+                )
+
         arcade.draw_text(
             f"❤️ 1  |  ⏱ {self.temps_ecoule:.1f}s",
             10, SCREEN_HEIGHT - 30,
